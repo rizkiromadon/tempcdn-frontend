@@ -7,8 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
-  const units = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const units = ["B", "KB", "MB", "GB", "TB", "PB"];
+  const rawIndex = Math.floor(Math.log(bytes) / Math.log(1024));
+  // Clamp so values at/beyond the largest known unit (or any future
+  // config/backend value we don't anticipate) never index past the array
+  // and silently render "undefined" instead of a number.
+  const i = Math.min(Math.max(rawIndex, 0), units.length - 1);
   const value = bytes / Math.pow(1024, i);
   return `${value.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
 }

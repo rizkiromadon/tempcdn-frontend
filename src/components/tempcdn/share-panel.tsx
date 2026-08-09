@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, Check, QrCode } from "lucide-react";
+import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ interface SharePanelProps {
 export function SharePanel({ url, disabled }: SharePanelProps) {
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [qrSrc, setQrSrc] = useState<string | null>(null);
 
   async function copy() {
     if (disabled) return;
@@ -23,9 +25,27 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
     setTimeout(() => setCopied(false), 1600);
   }
 
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&color=1F2430&bgcolor=FFFFFF&data=${encodeURIComponent(
-    url
-  )}`;
+  // Generated fully client-side (no network call) so the file's URL never
+  // leaves the browser — a third-party QR image service would otherwise see
+  // every URL a user shares, which contradicts "nothing left behind".
+  useEffect(() => {
+    if (!showQr || disabled) return;
+    let cancelled = false;
+    QRCode.toDataURL(url, {
+      width: 180,
+      margin: 2,
+      color: { dark: "#1F2430", light: "#FFFFFF" }
+    })
+      .then((dataUrl) => {
+        if (!cancelled) setQrSrc(dataUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setQrSrc(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [showQr, disabled, url]);
 
   return (
     <div className="space-y-3">
@@ -60,14 +80,18 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
 
       {showQr && !disabled && (
         <div className="flex animate-fade-up items-center gap-3 rounded-xl border border-line bg-paper-sunk p-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={qrSrc}
-            alt="QR code linking to the file"
-            width={90}
-            height={90}
-            className="shrink-0 rounded-lg border border-line bg-paper"
-          />
+          {qrSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={qrSrc}
+              alt="QR code linking to the file"
+              width={90}
+              height={90}
+              className="shrink-0 rounded-lg border border-line bg-paper"
+            />
+          ) : (
+            <div className="h-[90px] w-[90px] shrink-0 animate-pulse rounded-lg border border-line bg-paper" />
+          )}
           <p className="text-sm leading-relaxed text-ink-soft">
             Scan to open this file on another device. The code stops working the
             moment the link expires.

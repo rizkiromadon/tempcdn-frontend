@@ -22,9 +22,26 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap"
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_TITLE = "TempCDN — files that pass through";
+const SITE_DESCRIPTION =
+  "Anonymous file sharing with automatic expiry. No login, nothing left behind.";
+
 export const metadata: Metadata = {
-  title: "TempCDN — files that pass through",
-  description: "Anonymous file sharing with automatic expiry. No login, nothing left behind."
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    type: "website",
+    siteName: "TempCDN"
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION
+  }
 };
 
 export default function RootLayout({

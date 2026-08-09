@@ -9,9 +9,11 @@ interface UploadDockProps {
   onFiles: (files: File[]) => void;
   disabled?: boolean;
   maxSizeLabel?: string;
+  /** Server-provided allowed MIME types (supports "type/*" wildcards); empty/undefined means no restriction. */
+  acceptedMimeTypes?: string[];
 }
 
-export function UploadDock({ onFiles, disabled, maxSizeLabel }: UploadDockProps) {
+export function UploadDock({ onFiles, disabled, maxSizeLabel, acceptedMimeTypes }: UploadDockProps) {
   const onDrop = useCallback(
     (accepted: File[]) => {
       if (accepted.length) onFiles(accepted);
@@ -19,10 +21,26 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel }: UploadDockProps)
     [onFiles]
   );
 
+  // react-dropzone's `accept` prop only pre-filters the OS "Open File"
+  // dialog — actual validation still happens via validateFileAgainstConfig
+  // (client) and the server (magic-byte sniffing), so this is a pure
+  // convenience: it doesn't change what's ultimately allowed, only what
+  // the picker shows by default. `[]` as the extension list means "any
+  // extension for this MIME type", which is what we want since we're
+  // filtering by MIME pattern, not extension.
+  const accept =
+    acceptedMimeTypes && acceptedMimeTypes.length > 0
+      ? acceptedMimeTypes.reduce<Record<string, string[]>>((acc, mime) => {
+          acc[mime] = [];
+          return acc;
+        }, {})
+      : undefined;
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     disabled,
-    multiple: true
+    multiple: true,
+    accept
   });
 
   return (

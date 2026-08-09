@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   FileImage,
   FileVideo,
@@ -45,13 +46,16 @@ export function FilePreview({ src, contentType, alt, className, iconOnly }: File
       )}
     >
       {showImage ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        // `fill` + a small `sizes` hint lets Next.js request/generate a
+        // resized image instead of shipping the full original file for a
+        // ~36–44px thumbnail — large images no longer download at full size.
+        <Image
           src={src}
           alt={alt}
-          className="h-full w-full object-cover"
+          fill
+          sizes="44px"
+          className="object-cover"
           onError={() => setErrored(true)}
-          loading="lazy"
         />
       ) : (
         <Icon className="h-1/3 w-1/3 min-h-4 min-w-4 text-ink-faint" strokeWidth={1.5} />

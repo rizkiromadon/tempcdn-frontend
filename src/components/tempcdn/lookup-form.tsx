@@ -11,9 +11,23 @@ export function LookupForm() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const id = value.trim();
-    if (!id) return;
-    router.push(`/files/${id}`);
+    const raw = value.trim();
+    if (!raw) return;
+
+    // Be forgiving if the user pasted a full CDN URL instead of a bare ID:
+    // extract the last path segment so the lookup still works.
+    let id = raw;
+    try {
+      const url = new URL(raw);
+      const segments = url.pathname.split("/").filter(Boolean);
+      if (segments.length > 0) {
+        id = segments[segments.length - 1];
+      }
+    } catch {
+      // Not a URL — treat the trimmed input as the raw ID.
+    }
+
+    router.push(`/files/${encodeURIComponent(id)}`);
   }
 
   return (
