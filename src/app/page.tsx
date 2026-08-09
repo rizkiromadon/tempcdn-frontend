@@ -1,6 +1,7 @@
 import { UploadPanel } from "@/components/tempcdn/upload-panel";
 import { LookupForm } from "@/components/tempcdn/lookup-form";
 import { RecentDrops } from "@/components/tempcdn/recent-drops";
+import { LiveStats } from "@/components/tempcdn/live-stats";
 import { Timer, ShieldOff, Fingerprint } from "lucide-react";
 
 const facts = [
@@ -51,6 +52,13 @@ export default function HomePage() {
             <p className="text-xs leading-relaxed text-bone-dim">{fact.body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="mb-14 border-t border-steel-dim pt-8">
+        <h2 className="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-bone-faint">
+          network stats
+        </h2>
+        <LiveStats />
       </section>
 
       <section className="mb-14 border-t border-steel-dim pt-8">

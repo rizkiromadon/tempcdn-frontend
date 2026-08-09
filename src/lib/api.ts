@@ -84,3 +84,32 @@ export async function checkHealth(): Promise<{ status: string }> {
   if (!res.ok) return parseError(res);
   return res.json();
 }
+
+export interface TempCdnMetrics {
+  uploadsTotal: number;
+  uploadBytesTotal: number;
+  uploadErrorsTotal: number;
+}
+
+/**
+ * Fetches the Prometheus text-format /metrics endpoint and extracts the
+ * tempcdn_* counters. Any metric not present in the response is left
+ * undefined-safe by defaulting to 0.
+ */
+export async function getTempCdnMetrics(): Promise<TempCdnMetrics> {
+  const base = API_BASE.replace(/\/api\/v1$/, "");
+  const res = await fetch(`${base}/metrics`, { cache: "no-store" });
+  if (!res.ok) return parseError(res);
+  const text = await res.text();
+
+  const readMetric = (name: string): number => {
+    const match = text.match(new RegExp(`^${name}\\s+([0-9eE+.-]+)$`, "m"));
+    return match ? Number(match[1]) : 0;
+  };
+
+  return {
+    uploadsTotal: readMetric("tempcdn_uploads_total"),
+    uploadBytesTotal: readMetric("tempcdn_upload_bytes_total"),
+    uploadErrorsTotal: readMetric("tempcdn_upload_errors_total")
+  };
+}
