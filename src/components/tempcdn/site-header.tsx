@@ -19,6 +19,20 @@ export function SiteHeader() {
             </span>
           </div>
         </Link>
+        <nav className="flex items-center gap-5">
+          <Link
+            href="/upload"
+            className="font-mono text-xs uppercase tracking-widest text-bone-dim transition-colors hover:text-hazard"
+          >
+            Upload
+          </Link>
+          <Link
+            href="/docs"
+            className="font-mono text-xs uppercase tracking-widest text-bone-dim transition-colors hover:text-hazard"
+          >
+            API Docs
+          </Link>
+        </nav>
       </div>
     </header>
   );

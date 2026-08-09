@@ -1,8 +1,7 @@
-import { UploadPanel } from "@/components/tempcdn/upload-panel";
-import { LookupForm } from "@/components/tempcdn/lookup-form";
-import { RecentDrops } from "@/components/tempcdn/recent-drops";
+import Link from "next/link";
 import { LiveStats } from "@/components/tempcdn/live-stats";
-import { Timer, ShieldOff, Fingerprint } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Timer, ShieldOff, Fingerprint, ArrowRight } from "lucide-react";
 
 const facts = [
   {
@@ -25,7 +24,7 @@ const facts = [
 export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:pt-14">
-      <section className="mb-10 space-y-4 sm:mb-12">
+      <section className="mb-10 space-y-5 sm:mb-12">
         <h1 className="max-w-2xl font-mono text-[1.75rem] font-bold leading-tight text-bone sm:text-4xl">
           Files pass through.
           <br />
@@ -36,10 +35,20 @@ export default function HomePage() {
           fixed timer — no accounts, no dashboards to manage, nothing left
           behind after expiry.
         </p>
-      </section>
-
-      <section className="mb-14">
-        <UploadPanel />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button size="lg" asChild>
+            <Link href="/upload">
+              Start uploading
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
+          <Link
+            href="/docs"
+            className="font-mono text-xs uppercase tracking-widest text-bone-dim transition-colors hover:text-hazard"
+          >
+            Read the API docs
+          </Link>
+        </div>
       </section>
 
       <section className="mb-14 grid gap-3 sm:grid-cols-3">
@@ -54,29 +63,11 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="mb-14 border-t border-steel-dim pt-8">
+      <section className="border-t border-steel-dim pt-8">
         <h2 className="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-bone-faint">
           network stats
         </h2>
         <LiveStats />
-      </section>
-
-      <section className="mb-14 border-t border-steel-dim pt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-mono text-xs font-semibold uppercase tracking-widest text-bone-faint">
-            recent drops on this device
-          </h2>
-        </div>
-        <RecentDrops />
-      </section>
-
-      <section className="border-t border-steel-dim pt-8">
-        <h2 className="mb-3 font-mono text-xs font-semibold uppercase tracking-widest text-bone-faint">
-          already have a file id?
-        </h2>
-        <div className="max-w-md">
-          <LookupForm />
-        </div>
       </section>
     </div>
   );

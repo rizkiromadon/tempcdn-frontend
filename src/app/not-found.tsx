@@ -13,7 +13,7 @@ export default function NotFound() {
         the page you&apos;re looking for was never on the dock.
       </p>
       <Button asChild variant="secondary" size="sm">
-        <Link href="/">back to dock</Link>
+        <Link href="/">back home</Link>
       </Button>
     </div>
   );
