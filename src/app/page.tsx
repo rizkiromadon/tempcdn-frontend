@@ -25,12 +25,6 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:pt-14">
       <section className="mb-10 space-y-4 sm:mb-12">
-        <div className="inline-flex items-center gap-2 border border-steel-dim bg-surface-raised px-2.5 py-1">
-          <span className="h-1.5 w-1.5 animate-pulse-slow rounded-full bg-hazard" />
-          <span className="font-mono text-[10px] uppercase tracking-widest text-bone-dim">
-            live storage / auto-purge enabled
-          </span>
-        </div>
         <h1 className="max-w-2xl font-mono text-[1.75rem] font-bold leading-tight text-bone sm:text-4xl">
           Files pass through.
           <br />

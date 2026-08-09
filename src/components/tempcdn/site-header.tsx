@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Radio } from "lucide-react";
-import { StatusPill } from "@/components/tempcdn/status-pill";
 
 export function SiteHeader() {
   return (
@@ -20,7 +19,6 @@ export function SiteHeader() {
             </span>
           </div>
         </Link>
-        <StatusPill />
       </div>
     </header>
   );
