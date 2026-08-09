@@ -1,6 +1,6 @@
 # TempCDN Frontend
 
-Dark industrial frontend for the TempCDN backend — anonymous, self-expiring
+Soft, modern frontend for the TempCDN backend — anonymous, self-expiring
 file transit. Built with Next.js 14 (App Router), TypeScript, Tailwind CSS,
 and shadcn/ui-style primitives.
 
@@ -8,9 +8,9 @@ and shadcn/ui-style primitives.
 
 - Next.js 14 (App Router, `src/` layout)
 - TypeScript
-- Tailwind CSS with a custom industrial token system
+- Tailwind CSS with a custom soft-modern token system
 - Radix UI primitives (`react-slot`, `react-progress`) in a shadcn/ui pattern
-- `react-dropzone` for the upload dock
+- `react-dropzone` for the upload area
 - `sonner` for toasts
 - `lucide-react` for icons
 
@@ -33,8 +33,8 @@ and `/healthz` to be reachable at `NEXT_PUBLIC_TEMPCDN_API_BASE` (with
 ```
 src/app                    Routes: home (/), file detail (/files/[id])
 src/components/ui          Generic primitives: button, card, badge, progress, toaster
-src/components/tempcdn     Domain components: upload dock, upload panel/row,
-                            file card, burn timer, lookup form, header, status pill
+src/components/tempcdn     Domain components: upload area, upload panel/row,
+                            file card, expiry timer, lookup form, header, status pill
 src/lib/api.ts              Backend client (upload, get, delete, health)
 src/lib/utils.ts            Formatting helpers (bytes, dates, countdown)
 src/types/tempcdn.ts        API and UI types
@@ -42,8 +42,11 @@ src/types/tempcdn.ts        API and UI types
 
 ## Design
 
-Dark industrial theme: near-black surfaces, steel-gray borders, an amber
-hazard accent for active/warning states, and rust for danger/expiry. The
-signature element is the **burn timer** — a live countdown gauge on each
-file that shifts from green to amber to rust as expiry approaches, echoing
-the backend's TTL-driven deletion model.
+Soft modern theme: a light, airy mist background, white cards with gentle
+shadows and rounded corners, and an indigo (`bloom`) accent for primary
+actions. Sage green, amber, and coral cover active, warning, and
+danger/expiry states respectively. The signature element is the **expiry
+timer** — a breathing countdown ring on each file that shifts from indigo
+to amber to coral as expiry approaches, echoing the backend's TTL-driven
+deletion model without ever feeling alarming.
+

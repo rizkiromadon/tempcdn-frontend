@@ -36,7 +36,7 @@ export function LiveStats() {
 
   if (failed) {
     return (
-      <div className="border border-steel-dim bg-surface p-4 text-xs text-bone-faint">
+      <div className="rounded-xl border border-line bg-paper p-5 text-sm text-ink-faint">
         Live stats unavailable.
       </div>
     );
@@ -61,12 +61,14 @@ export function LiveStats() {
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="border border-steel-dim bg-surface p-4">
-          <stat.icon className="mb-3 h-4 w-4 text-hazard" strokeWidth={1.75} />
-          <div className="mb-1 font-mono text-lg font-bold text-bone">{stat.value}</div>
-          <p className="text-xs uppercase tracking-wide text-bone-dim">{stat.label}</p>
+        <div key={stat.label} className="rounded-xl border border-line bg-paper p-5 shadow-soft">
+          <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-bloom-soft">
+            <stat.icon className="h-4 w-4 text-bloom-strong" strokeWidth={1.75} />
+          </div>
+          <div className="mb-1 font-display text-xl font-bold text-ink">{stat.value}</div>
+          <p className="text-xs text-ink-soft">{stat.label}</p>
         </div>
       ))}
     </div>

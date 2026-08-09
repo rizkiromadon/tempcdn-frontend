@@ -20,19 +20,19 @@ function RecentEntryRow({ entry }: { entry: RecentEntry }) {
   if (remaining <= 0) return null;
 
   return (
-    <div className="flex items-center gap-3 border border-steel-dim bg-surface-raised p-3">
+    <div className="flex items-center gap-3 rounded-xl border border-line bg-paper p-3.5 shadow-soft">
       <FilePreview
         src={entry.cdn_url}
         contentType={entry.content_type}
         alt={entry.original_name}
-        className="h-9 w-9 shrink-0"
+        className="h-9 w-9 shrink-0 rounded-lg"
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate font-mono text-xs font-medium text-bone" title={entry.original_name}>
+        <p className="truncate text-sm font-medium text-ink" title={entry.original_name}>
           {entry.original_name}
         </p>
-        <p className="font-mono text-[10px] text-bone-faint">
-          {formatBytes(entry.size_bytes)} · burns in {formatCountdown(remaining)}
+        <p className="text-xs text-ink-faint">
+          {formatBytes(entry.size_bytes)} · fades in {formatCountdown(remaining)}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
@@ -74,12 +74,12 @@ export function RecentDrops() {
 
   if (entries.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 border border-dashed border-steel bg-surface-hatch py-10 text-center">
-        <Inbox className="h-5 w-5 text-bone-faint" strokeWidth={1.5} />
-        <p className="font-mono text-xs uppercase tracking-widest text-bone-faint">
-          nothing dropped yet on this device
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line bg-paper-sunk py-10 text-center">
+        <Inbox className="h-5 w-5 text-ink-faint" strokeWidth={1.5} />
+        <p className="text-sm font-medium text-ink-soft">
+          Nothing uploaded yet on this device
         </p>
-        <p className="max-w-xs text-xs text-bone-dim">
+        <p className="max-w-xs text-xs text-ink-faint">
           Files you upload here will show up in this list until they expire —
           only visible to you, stored locally in this browser.
         </p>

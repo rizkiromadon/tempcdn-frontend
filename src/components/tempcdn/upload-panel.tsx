@@ -34,7 +34,7 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
           pushRecentEntry(result);
           onUploaded?.();
           if (result.duplicate) {
-            toast.info("Already on the dock", {
+            toast.info("Already uploaded", {
               description: `${file.name} matched an existing file`
             });
           } else {
@@ -89,15 +89,15 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
       {tasks.length > 0 && (
         <div className="space-y-2">
           {summary && summary.total > 1 && (
-            <div className="flex items-center justify-between border border-steel-dim bg-surface px-3 py-2">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-bone-faint">
+            <div className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-2.5">
+              <span className="text-xs text-ink-faint">
                 {summary.active > 0
                   ? `uploading ${summary.total - summary.active}/${summary.total}`
-                  : `${summary.done} stored${summary.failed ? `, ${summary.failed} failed` : ""}`}
+                  : `${summary.done} uploaded${summary.failed ? `, ${summary.failed} failed` : ""}`}
               </span>
               <button
                 onClick={() => setTasks([])}
-                className="font-mono text-[10px] uppercase tracking-wide text-bone-faint transition-colors hover:text-hazard"
+                className="text-xs font-medium text-ink-faint transition-colors hover:text-bloom-strong"
               >
                 clear list
               </button>

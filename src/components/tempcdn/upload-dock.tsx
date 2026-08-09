@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { UploadCloud, PackagePlus } from "lucide-react";
+import { UploadCloud, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UploadDockProps {
@@ -29,56 +29,49 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel = "up to 500 MB per
     <div
       {...getRootProps()}
       className={cn(
-        "group relative cursor-pointer overflow-hidden border-2 border-dashed border-steel bg-surface-hatch px-6 py-16 text-center transition-colors",
-        "hover:border-hazard/60",
-        isDragActive && "border-hazard bg-hazard/5",
+        "group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-line bg-paper px-6 py-16 text-center shadow-soft transition-all",
+        "hover:border-bloom/50 hover:bg-bloom-soft/40",
+        isDragActive && "border-bloom bg-bloom-soft scale-[1.01]",
         disabled && "cursor-not-allowed opacity-50"
       )}
     >
       <input {...getInputProps()} />
 
-      <div
-        className={cn(
-          "pointer-events-none absolute left-0 top-0 h-8 w-full bg-gradient-to-b from-hazard/10 to-transparent opacity-0 transition-opacity",
-          isDragActive && "opacity-100 animate-scan"
-        )}
-      />
-
       <div className="relative mx-auto flex max-w-sm flex-col items-center gap-4">
         <div
           className={cn(
-            "flex h-16 w-16 items-center justify-center border border-steel bg-void text-bone-dim transition-all",
-            "group-hover:border-hazard group-hover:text-hazard",
-            isDragActive && "border-hazard text-hazard scale-105"
+            "flex h-16 w-16 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-all",
+            "group-hover:scale-105",
+            isDragActive && "scale-110 bg-bloom text-white animate-breathe"
           )}
         >
           {isDragActive ? (
-            <PackagePlus className="h-7 w-7" strokeWidth={1.75} />
+            <Sparkles className="h-7 w-7" strokeWidth={1.75} />
           ) : (
             <UploadCloud className="h-7 w-7" strokeWidth={1.75} />
           )}
         </div>
 
         <div className="space-y-1.5">
-          <p className="font-mono text-sm font-semibold uppercase tracking-wide text-bone">
-            {isDragActive ? "release to load" : "drop files on the dock"}
+          <p className="text-base font-semibold text-ink">
+            {isDragActive ? "Let go to upload" : "Drop files here"}
           </p>
-          <p className="text-xs text-bone-dim">
-            or click to browse. every file self-destructs after its TTL.
+          <p className="text-sm text-ink-soft">
+            or click to browse. Every file fades away after its lifespan.
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-bone-faint">
+          <p className="text-xs text-ink-faint">
             {maxSizeLabel} · multiple files supported
           </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <span className="border border-steel-dim px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-bone-faint">
+          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
             no login
           </span>
-          <span className="border border-steel-dim px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-bone-faint">
-            auto-expire
+          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
+            auto-expires
           </span>
-          <span className="border border-steel-dim px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-bone-faint">
+          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
             dedup by checksum
           </span>
         </div>
@@ -86,3 +79,4 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel = "up to 500 MB per
     </div>
   );
 }
+

@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-5 pb-24 pt-24 text-center">
-      <AlertTriangle className="h-6 w-6 text-hazard" />
-      <h1 className="font-mono text-lg font-semibold text-bone">
-        this route doesn&apos;t exist
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-soft">
+        <AlertTriangle className="h-5 w-5 text-amber" />
+      </div>
+      <h1 className="font-display text-lg font-semibold text-ink">
+        This page doesn&apos;t exist
       </h1>
-      <p className="text-xs text-bone-dim">
-        the page you&apos;re looking for was never on the dock.
+      <p className="text-sm text-ink-soft">
+        The page you&apos;re looking for never made it here.
       </p>
       <Button asChild variant="secondary" size="sm">
-        <Link href="/">back home</Link>
+        <Link href="/">Back home</Link>
       </Button>
     </div>
   );

@@ -40,7 +40,7 @@ export function FilePreview({ src, contentType, alt, className, iconOnly }: File
   return (
     <div
       className={cn(
-        "relative flex items-center justify-center overflow-hidden border border-steel-dim bg-void",
+        "relative flex items-center justify-center overflow-hidden rounded-lg border border-line bg-paper-sunk",
         className
       )}
     >
@@ -54,7 +54,7 @@ export function FilePreview({ src, contentType, alt, className, iconOnly }: File
           loading="lazy"
         />
       ) : (
-        <Icon className="h-1/3 w-1/3 min-h-4 min-w-4 text-bone-faint" strokeWidth={1.5} />
+        <Icon className="h-1/3 w-1/3 min-h-4 min-w-4 text-ink-faint" strokeWidth={1.5} />
       )}
     </div>
   );

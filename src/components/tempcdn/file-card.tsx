@@ -32,14 +32,14 @@ function MetaRow({
   onCopy?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-2">
-      <div className="flex items-center gap-2 text-bone-faint">
+    <div className="flex items-center justify-between gap-4 py-2.5">
+      <div className="flex items-center gap-2 text-ink-faint">
         <Icon className="h-3.5 w-3.5" />
-        <span className="font-mono text-[10px] uppercase tracking-widest">{label}</span>
+        <span className="text-xs">{label}</span>
       </div>
       <div className="flex min-w-0 items-center gap-1.5">
         <span
-          className={`truncate text-right text-xs text-bone ${mono ? "font-mono" : ""}`}
+          className={`truncate text-right text-xs text-ink ${mono ? "font-mono" : ""}`}
           title={value}
         >
           {value}
@@ -48,7 +48,7 @@ function MetaRow({
           <button
             onClick={onCopy}
             aria-label={`Copy ${label}`}
-            className="shrink-0 text-bone-faint transition-colors hover:text-hazard"
+            className="shrink-0 text-ink-faint transition-colors hover:text-bloom-strong"
           >
             <Copy className="h-3 w-3" />
           </button>
@@ -67,20 +67,20 @@ export function FileCard({ file, onDelete, deleting }: FileCardProps) {
   }
 
   return (
-    <Card className="clip-corner">
+    <Card>
       <CardHeader className="items-start gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <FilePreview
             src={file.cdn_url}
             contentType={file.content_type}
             alt={file.original_name}
-            className="h-11 w-11 shrink-0 rounded-sm"
+            className="h-11 w-11 shrink-0 rounded-lg"
           />
           <div className="min-w-0">
-            <span className="block truncate font-mono text-sm font-semibold text-bone" title={file.original_name}>
+            <span className="block truncate text-sm font-semibold text-ink" title={file.original_name}>
               {file.original_name}
             </span>
-            <span className="block truncate font-mono text-[10px] text-bone-faint">
+            <span className="block truncate font-mono text-[11px] text-ink-faint">
               {truncateMiddle(file.id, 10, 6)}
             </span>
           </div>
@@ -95,22 +95,20 @@ export function FileCard({ file, onDelete, deleting }: FileCardProps) {
         {!isExpired ? (
           <BurnTimer expiresAt={file.expires_at} createdAt={file.created_at} variant="gauge" />
         ) : (
-          <div className="flex items-center gap-3 border border-rust-dim/60 bg-rust/5 px-3 py-2.5">
-            <span className="h-2 w-2 shrink-0 rounded-full bg-rust-glow" />
-            <p className="text-xs text-bone-dim">
-              This file was purged on schedule. The link and its content are gone for good.
+          <div className="flex items-center gap-3 rounded-xl border border-coral/20 bg-coral-soft px-4 py-3">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-coral" />
+            <p className="text-sm text-ink-soft">
+              This file expired on schedule. The link and its content are gone for good.
             </p>
           </div>
         )}
 
         <div>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-bone-faint">
-            share link
-          </p>
+          <p className="mb-2 text-xs font-medium text-ink-faint">share link</p>
           <SharePanel url={file.cdn_url} disabled={isExpired} />
         </div>
 
-        <div className="divide-y divide-steel-dim/60 border-y border-steel-dim/60">
+        <div className="divide-y divide-line border-y border-line">
           <MetaRow icon={FileType} label="type" value={file.content_type} />
           <MetaRow icon={HardDrive} label="size" value={formatBytes(file.size_bytes)} />
           <MetaRow

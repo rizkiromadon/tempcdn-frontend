@@ -23,7 +23,7 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
     setTimeout(() => setCopied(false), 1600);
   }
 
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&color=E8E6E1&bgcolor=141618&data=${encodeURIComponent(
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&color=1F2430&bgcolor=FFFFFF&data=${encodeURIComponent(
     url
   )}`;
 
@@ -32,7 +32,7 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
       <div className="flex items-center gap-2">
         <div
           className={cn(
-            "h-9 flex-1 truncate border border-steel bg-void px-3 font-mono text-[11px] leading-9 text-bone-dim",
+            "h-10 flex-1 truncate rounded-lg border border-line bg-paper-sunk px-3 font-mono text-xs leading-10 text-ink-soft",
             disabled && "opacity-50"
           )}
           title={url}
@@ -40,7 +40,7 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
           {url}
         </div>
         <Button size="icon" variant="secondary" onClick={copy} disabled={disabled} aria-label="Copy link">
-          {copied ? <Check className="h-3.5 w-3.5 text-signal" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-3.5 w-3.5 text-sage" /> : <Copy className="h-3.5 w-3.5" />}
         </Button>
         <Button
           size="icon"
@@ -55,16 +55,16 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
       </div>
 
       {showQr && !disabled && (
-        <div className="flex animate-fade-up items-center gap-3 border border-steel-dim bg-surface-raised p-3">
+        <div className="flex animate-fade-up items-center gap-3 rounded-xl border border-line bg-paper-sunk p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={qrSrc}
             alt="QR code linking to the file"
             width={90}
             height={90}
-            className="shrink-0 border border-steel-dim bg-void"
+            className="shrink-0 rounded-lg border border-line bg-paper"
           />
-          <p className="text-xs leading-relaxed text-bone-dim">
+          <p className="text-sm leading-relaxed text-ink-soft">
             Scan to open this file on another device. The code stops working the
             moment the link expires.
           </p>

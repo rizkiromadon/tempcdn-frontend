@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Flame } from "lucide-react";
+import { Clock } from "lucide-react";
 import { cn, formatCountdown, fractionRemaining, msUntil } from "@/lib/utils";
 
 interface BurnTimerProps {
@@ -25,9 +25,9 @@ function useBurnState(expiresAt: string, createdAt: string) {
   const isCritical = !isExpired && fraction < 0.15;
   const isWarning = !isExpired && fraction < 0.4;
 
-  const tone = isExpired || isCritical ? "text-rust-glow" : isWarning ? "text-hazard" : "text-signal";
-  const strokeColor = isExpired || isCritical ? "#E06B52" : isWarning ? "#F4A226" : "#4F9D6E";
-  const barTone = isExpired || isCritical ? "bg-rust" : isWarning ? "bg-hazard" : "bg-signal";
+  const tone = isExpired || isCritical ? "text-coral" : isWarning ? "text-amber" : "text-bloom-strong";
+  const strokeColor = isExpired || isCritical ? "#F1685E" : isWarning ? "#F3A455" : "#6366F1";
+  const barTone = isExpired || isCritical ? "bg-coral" : isWarning ? "bg-amber" : "bg-bloom";
 
   return { remaining, fraction, isExpired, isCritical, isWarning, tone, strokeColor, barTone };
 }
@@ -54,7 +54,7 @@ export function BurnTimer({ expiresAt, createdAt, className, variant = "bar" }: 
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="#26292B"
+              stroke="#EEF0F8"
               strokeWidth={stroke}
             />
             <circle
@@ -66,26 +66,24 @@ export function BurnTimer({ expiresAt, createdAt, className, variant = "bar" }: 
               strokeWidth={stroke}
               strokeDasharray={circumference}
               strokeDashoffset={dashOffset}
-              strokeLinecap="square"
+              strokeLinecap="round"
               className={cn(
                 "transition-[stroke-dashoffset] duration-1000 ease-linear",
-                isCritical && !isExpired && "animate-pulse-slow"
+                isCritical && !isExpired && "animate-breathe"
               )}
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <Flame className={cn("h-4 w-4", tone, isCritical && !isExpired && "animate-pulse-slow")} />
+            <Clock className={cn("h-4 w-4", tone, isCritical && !isExpired && "animate-breathe")} />
           </div>
         </div>
         <div className="space-y-1">
-          <p className="font-mono text-[10px] uppercase tracking-widest text-bone-faint">
-            burn timer
-          </p>
-          <p className={cn("font-mono text-lg font-semibold tabular-nums", tone)}>
+          <p className="text-xs font-medium text-ink-faint">time left</p>
+          <p className={cn("font-display text-lg font-semibold tabular-nums", tone)}>
             {formatCountdown(remaining)}
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-wide text-bone-faint">
-            {isExpired ? "purged" : `${Math.round(fraction * 100)}% of ttl left`}
+          <p className="text-xs text-ink-faint">
+            {isExpired ? "expired" : `${Math.round(fraction * 100)}% remaining`}
           </p>
         </div>
       </div>
@@ -95,25 +93,24 @@ export function BurnTimer({ expiresAt, createdAt, className, variant = "bar" }: 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-bone-faint">
-          burn timer
-        </span>
+        <span className="text-xs font-medium text-ink-faint">time left</span>
         <span
           className={cn(
-            "font-mono text-xs font-semibold tabular-nums",
+            "text-sm font-semibold tabular-nums",
             tone,
-            isCritical && !isExpired && "animate-pulse-slow"
+            isCritical && !isExpired && "animate-breathe"
           )}
         >
           {formatCountdown(remaining)}
         </span>
       </div>
-      <div className="relative h-1 w-full overflow-hidden bg-steel-dim">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-paper-sunk">
         <div
-          className={cn("h-full transition-all duration-1000 ease-linear", barTone)}
+          className={cn("h-full rounded-full transition-all duration-1000 ease-linear", barTone)}
           style={{ width: `${fraction * 100}%` }}
         />
       </div>
     </div>
   );
 }
+

@@ -1,39 +1,37 @@
 import Link from "next/link";
-import { Radio } from "lucide-react";
+import { Wind } from "lucide-react";
 
 export function SiteHeader() {
   return (
-    <header className="relative z-10 border-b border-steel-dim bg-surface/90 backdrop-blur">
-      <div className="h-1 w-full bg-hazard-stripes" />
+    <header className="sticky top-0 z-10 border-b border-line bg-mist/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center border border-steel bg-void text-hazard transition-colors group-hover:border-hazard">
-            <Radio className="h-4 w-4" strokeWidth={2.5} />
+        <Link href="/" className="group flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-colors group-hover:bg-bloom group-hover:text-white">
+            <Wind className="h-4 w-4" strokeWidth={2.25} />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-mono text-sm font-bold uppercase tracking-widest text-bone">
-              TempCDN
-            </span>
-            <span className="hidden font-mono text-[10px] uppercase tracking-wider text-bone-faint sm:inline">
-              transit storage / self-destructs
+            <span className="font-display text-sm font-bold text-ink">TempCDN</span>
+            <span className="hidden text-[11px] text-ink-faint sm:inline">
+              files that pass through
             </span>
           </div>
         </Link>
-        <nav className="flex items-center gap-5">
+        <nav className="flex items-center gap-6">
           <Link
             href="/upload"
-            className="font-mono text-xs uppercase tracking-widest text-bone-dim transition-colors hover:text-hazard"
+            className="text-sm text-ink-soft transition-colors hover:text-bloom-strong"
           >
             Upload
           </Link>
           <Link
             href="/docs"
-            className="font-mono text-xs uppercase tracking-widest text-bone-dim transition-colors hover:text-hazard"
+            className="text-sm text-ink-soft transition-colors hover:text-bloom-strong"
           >
-            API Docs
+            API docs
           </Link>
         </nav>
       </div>
     </header>
   );
 }
+

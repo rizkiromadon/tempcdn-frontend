@@ -23,15 +23,15 @@ type LoadState =
 
 function DetailSkeleton() {
   return (
-    <div className="animate-fade-up border border-steel-dim bg-surface">
-      <div className="flex items-center gap-3 border-b border-steel-dim px-4 py-3">
-        <Skeleton className="h-11 w-11 shrink-0" />
+    <div className="animate-fade-up rounded-xl border border-line bg-paper shadow-soft">
+      <div className="flex items-center gap-3 border-b border-line px-5 py-4">
+        <Skeleton className="h-11 w-11 shrink-0 rounded-lg" />
         <div className="min-w-0 flex-1 space-y-2">
           <Skeleton className="h-3.5 w-2/3" />
           <Skeleton className="h-2.5 w-1/3" />
         </div>
       </div>
-      <div className="space-y-5 p-4">
+      <div className="space-y-5 p-5">
         <div className="flex items-center gap-4">
           <Skeleton className="h-24 w-24 shrink-0 rounded-full" />
           <div className="space-y-2">
@@ -39,8 +39,8 @@ function DetailSkeleton() {
             <Skeleton className="h-5 w-24" />
           </div>
         </div>
-        <Skeleton className="h-9 w-full" />
-        <div className="space-y-3 border-y border-steel-dim/60 py-3">
+        <Skeleton className="h-10 w-full rounded-full" />
+        <div className="space-y-3 border-y border-line py-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center justify-between">
               <Skeleton className="h-2.5 w-16" />
@@ -103,31 +103,31 @@ export function FileDetail({ id }: FileDetailProps) {
     <div className="mx-auto max-w-xl px-5 pb-24 pt-10 sm:pt-14">
       <Button variant="ghost" size="sm" className="mb-6 -ml-2" onClick={() => router.push("/")}>
         <ArrowLeft className="h-3.5 w-3.5" />
-        back to dock
+        back home
       </Button>
 
       {state.kind === "loading" && <DetailSkeleton />}
 
       {state.kind === "not-found" && (
-        <div className="flex flex-col items-center gap-3 border border-dashed border-steel py-20 text-center animate-fade-up">
-          <AlertTriangle className="h-6 w-6 text-rust-glow" />
-          <p className="font-mono text-sm font-semibold text-bone">no record found</p>
-          <p className="max-w-xs text-xs text-bone-dim">
-            nothing on the dock matches id{" "}
-            <span className="font-mono text-bone">{id}</span>. it may have never
-            existed, expired and been purged, or the id was mistyped.
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line py-20 text-center animate-fade-up">
+          <AlertTriangle className="h-6 w-6 text-coral" />
+          <p className="text-sm font-semibold text-ink">no file found</p>
+          <p className="max-w-xs text-sm text-ink-soft">
+            nothing matches id{" "}
+            <span className="font-mono text-ink">{id}</span>. it may have never
+            existed, expired already, or the id was mistyped.
           </p>
           <Button variant="secondary" size="sm" onClick={() => router.push("/")}>
-            drop a new file
+            upload a new file
           </Button>
         </div>
       )}
 
       {state.kind === "error" && (
-        <div className="flex flex-col items-center gap-3 border border-dashed border-rust-dim py-20 text-center animate-fade-up">
-          <AlertTriangle className="h-6 w-6 text-rust-glow" />
-          <p className="font-mono text-sm font-semibold text-bone">lookup failed</p>
-          <p className="max-w-xs text-xs text-bone-dim">{state.message}</p>
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-coral/30 py-20 text-center animate-fade-up">
+          <AlertTriangle className="h-6 w-6 text-coral" />
+          <p className="text-sm font-semibold text-ink">lookup failed</p>
+          <p className="max-w-xs text-sm text-ink-soft">{state.message}</p>
           <Button
             variant="secondary"
             size="sm"

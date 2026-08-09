@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/tempcdn/site-header";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +10,12 @@ const inter = Inter({
   display: "swap"
 });
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap"
+});
+
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
@@ -17,8 +23,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TempCDN — temporary file transit",
-  description: "Anonymous file upload with automatic expiry. No login, no trace."
+  title: "TempCDN — files that pass through",
+  description: "Anonymous file sharing with automatic expiry. No login, nothing left behind."
 };
 
 export default function RootLayout({
@@ -27,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-grain min-h-screen font-sans">
+    <html lang="en" className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen font-sans">
         <SiteHeader />
         <main className="relative z-0">{children}</main>
         <Toaster />
@@ -36,3 +42,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -10,76 +10,84 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "#0B0C0D",
-        surface: {
-          DEFAULT: "#141618",
-          raised: "#1B1E20",
-          hatch: "#101214"
+        mist: "#F6F7FB",
+        paper: {
+          DEFAULT: "#FFFFFF",
+          sunk: "#F1F2F8"
         },
-        steel: {
-          DEFAULT: "#3A3D40",
-          light: "#54585C",
-          dim: "#26292B"
+        line: {
+          DEFAULT: "#E6E8F2",
+          soft: "#EEF0F8"
         },
-        bone: {
-          DEFAULT: "#E8E6E1",
-          dim: "#9A9B9C",
-          faint: "#6B6D6F"
+        ink: {
+          DEFAULT: "#1F2430",
+          soft: "#666C7D",
+          faint: "#9AA0B2"
         },
-        hazard: {
-          DEFAULT: "#F4A226",
-          dim: "#B8791C",
-          glow: "#FFC661"
+        bloom: {
+          DEFAULT: "#6366F1",
+          soft: "#EEF0FE",
+          strong: "#4F46E5"
         },
-        rust: {
-          DEFAULT: "#C24F3D",
-          dim: "#7A2E2E",
-          glow: "#E06B52"
+        sage: {
+          DEFAULT: "#2FBE86",
+          soft: "#E7F9F1"
         },
-        signal: {
-          DEFAULT: "#4F9D6E"
+        amber: {
+          DEFAULT: "#F3A455",
+          soft: "#FDF1E3"
+        },
+        coral: {
+          DEFAULT: "#F1685E",
+          soft: "#FDEBEA"
         }
       },
       fontFamily: {
-        mono: ["var(--font-jetbrains)", "ui-monospace", "SFMono-Regular", "monospace"],
-        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"]
+        display: ["var(--font-manrope)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "ui-monospace", "SFMono-Regular", "monospace"]
       },
       borderRadius: {
         none: "0px",
-        sm: "2px",
-        DEFAULT: "3px",
-        md: "4px",
-        lg: "6px"
+        sm: "8px",
+        DEFAULT: "12px",
+        md: "14px",
+        lg: "20px",
+        xl: "28px",
+        full: "9999px"
       },
       boxShadow: {
-        rivet: "inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.6)",
-        panel: "0 1px 2px rgba(0,0,0,0.4), 0 8px 24px -8px rgba(0,0,0,0.6)",
-        glow: "0 0 0 1px rgba(244,162,38,0.25), 0 0 24px -4px rgba(244,162,38,0.35)"
+        soft: "0 1px 2px rgba(31,36,48,0.04), 0 8px 24px -12px rgba(31,36,48,0.10)",
+        lifted: "0 4px 12px rgba(31,36,48,0.06), 0 16px 40px -16px rgba(31,36,48,0.16)",
+        glow: "0 0 0 4px rgba(99,102,241,0.12)"
       },
       backgroundImage: {
-        "hazard-stripes":
-          "repeating-linear-gradient(135deg, #F4A226 0px, #F4A226 10px, #0B0C0D 10px, #0B0C0D 20px)",
-        grain:
-          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E\")"
+        aurora:
+          "radial-gradient(ellipse 60% 40% at 15% 0%, rgba(99,102,241,0.10), transparent), radial-gradient(ellipse 50% 35% at 90% 10%, rgba(47,190,134,0.08), transparent)"
       },
       keyframes: {
         "pulse-slow": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.55" }
         },
-        scan: {
-          "0%": { transform: "translateY(-100%)" },
-          "100%": { transform: "translateY(100%)" }
+        breathe: {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.9" },
+          "50%": { transform: "scale(1.05)", opacity: "1" }
         },
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(6px)" },
           "100%": { opacity: "1", transform: "translateY(0)" }
+        },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" }
         }
       },
       animation: {
         "pulse-slow": "pulse-slow 2.4s ease-in-out infinite",
-        scan: "scan 2.5s linear infinite",
-        "fade-up": "fade-up 0.35s ease-out"
+        breathe: "breathe 3s ease-in-out infinite",
+        "fade-up": "fade-up 0.4s cubic-bezier(0.16,1,0.3,1)",
+        "fade-in": "fade-in 0.3s ease-out"
       }
     }
   },
@@ -87,3 +95,4 @@ const config: Config = {
 };
 
 export default config;
+

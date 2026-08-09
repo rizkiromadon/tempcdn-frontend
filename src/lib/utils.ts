@@ -29,7 +29,7 @@ export function msUntil(iso: string): number {
 }
 
 export function formatCountdown(ms: number): string {
-  if (ms <= 0) return "EXPIRED";
+  if (ms <= 0) return "expired";
   const totalSeconds = Math.floor(ms / 1000);
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
