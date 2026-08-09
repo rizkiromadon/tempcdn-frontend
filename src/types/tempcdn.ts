@@ -16,6 +16,14 @@ export interface ApiError {
   error: string;
 }
 
+export interface TempCdnConfig {
+  max_upload_size_bytes: number;
+  max_upload_size_mb: number;
+  allowed_mime_types: string[];
+  blocked_extensions: string[];
+  file_ttl_hours: number;
+}
+
 export type UploadStatus = "queued" | "uploading" | "done" | "error";
 
 export interface UploadTask {

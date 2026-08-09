@@ -1,4 +1,4 @@
-import type { UploadedFile } from "@/types/tempcdn";
+import type { UploadedFile, TempCdnConfig } from "@/types/tempcdn";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_TEMPCDN_API_BASE ?? "http://localhost:8080/api/v1";
@@ -60,6 +60,16 @@ export function uploadFile(
   });
 
   return { promise, abort: () => xhr.abort() };
+}
+
+/**
+ * Fetches server-driven upload constraints (max size, allowed mime types,
+ * blocked extensions, retention TTL) from GET /api/v1/config.
+ */
+export async function getConfig(): Promise<TempCdnConfig> {
+  const res = await fetch(`${API_BASE}/config`, { cache: "no-store" });
+  if (!res.ok) return parseError(res);
+  return res.json();
 }
 
 export async function getFileInfo(id: string): Promise<UploadedFile> {

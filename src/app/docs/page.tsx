@@ -11,7 +11,8 @@ import {
   FileSearch,
   Trash2,
   AlertTriangle,
-  ShieldAlert
+  ShieldAlert,
+  Settings
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -109,6 +110,7 @@ const HEALTH_BASE = API_BASE.replace(/\/api\/v1$/, "");
 const nav = [
   { id: "health", label: "Health check" },
   { id: "metrics", label: "Metrics" },
+  { id: "config", label: "Upload config" },
   { id: "upload", label: "Upload a file" },
   { id: "file-info", label: "Get file info" },
   { id: "file-delete", label: "Delete a file" },
@@ -181,6 +183,49 @@ export default function DocsPage() {
             Go/process metrics.
           </p>
           <CodeBlock label="request">{`curl ${HEALTH_BASE}/metrics`}</CodeBlock>
+        </Section>
+
+        <Section id="config" icon={Settings} title="Upload config" method="GET" path="/api/v1/config">
+          <p className="text-sm leading-relaxed text-ink-soft">
+            Returns the server&apos;s current upload constraints — max file size, allowed MIME
+            types, blocked extensions, and retention TTL. The front-end fetches this once per
+            session to size-check files client-side before uploading, so limits shown in the UI
+            always reflect the server&apos;s actual configuration.
+          </p>
+
+          <CodeBlock label="request">{`curl ${API_BASE}/config`}</CodeBlock>
+
+          <CodeBlock label="200 OK">{`{
+  "max_upload_size_bytes": 134217728,
+  "max_upload_size_mb": 128,
+  "allowed_mime_types": [
+    "image/*",
+    "video/*",
+    "application/pdf",
+    "application/zip",
+    "text/plain"
+  ],
+  "blocked_extensions": [
+    ".exe",
+    ".bat",
+    ".sh",
+    ".msi",
+    ".dll",
+    ".scr"
+  ],
+  "file_ttl_hours": 24
+}`}</CodeBlock>
+
+          <div>
+            <div className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-faint">
+              error responses
+            </div>
+            <div className="rounded-xl border border-line bg-paper px-4">
+              <StatusRow status="500" variant="danger">
+                Unexpected server-side failure.
+              </StatusRow>
+            </div>
+          </div>
         </Section>
 
         <Section id="upload" icon={UploadCloud} title="Upload a file" method="POST" path="/api/v1/upload">
@@ -358,9 +403,10 @@ export default function DocsPage() {
               policy — the allowed origin is set server-side.
             </li>
             <li>
-              <code className="text-ink">GET /api/v1/files/{"{id}"}</code> uses a permissive CORS
-              policy (<code className="text-ink">*</code>), since file metadata isn&apos;t
-              sensitive and is commonly read from arbitrary front-end origins.
+              <code className="text-ink">GET /api/v1/files/{"{id}"}</code> and{" "}
+              <code className="text-ink">GET /api/v1/config</code> use a permissive CORS policy (
+              <code className="text-ink">*</code>), since neither file metadata nor upload config
+              is sensitive, and both are commonly read from arbitrary front-end origins.
             </li>
           </ul>
         </Section>

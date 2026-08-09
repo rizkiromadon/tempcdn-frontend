@@ -5,6 +5,8 @@ import { UploadDock } from "@/components/tempcdn/upload-dock";
 import { UploadRow } from "@/components/tempcdn/upload-row";
 import { uploadFile, TempCdnError } from "@/lib/api";
 import { pushRecentEntry } from "@/lib/history";
+import { useTempCdnConfig } from "@/lib/use-config";
+import { validateFileAgainstConfig, formatBytes } from "@/lib/utils";
 import type { UploadTask } from "@/types/tempcdn";
 import { toast } from "sonner";
 
@@ -18,6 +20,7 @@ interface UploadPanelProps {
 
 export function UploadPanel({ onUploaded }: UploadPanelProps) {
   const [tasks, setTasks] = useState<UploadTask[]>([]);
+  const { config, loading: configLoading } = useTempCdnConfig();
 
   const updateTask = useCallback((clientId: string, patch: Partial<UploadTask>) => {
     setTasks((prev) => prev.map((t) => (t.clientId === clientId ? { ...t, ...patch } : t)));
@@ -60,9 +63,18 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
       }));
 
       setTasks((prev) => [...newTasks, ...prev]);
-      newTasks.forEach((task) => runUpload(task.clientId, task.file));
+
+      newTasks.forEach((task) => {
+        const validation = validateFileAgainstConfig(task.file, config);
+        if (!validation.valid) {
+          updateTask(task.clientId, { status: "error", error: validation.reason });
+          toast.error("File rejected", { description: `${task.file.name}: ${validation.reason}` });
+          return;
+        }
+        runUpload(task.clientId, task.file);
+      });
     },
-    [runUpload]
+    [runUpload, updateTask, config]
   );
 
   function removeTask(clientId: string) {
@@ -71,7 +83,14 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
 
   function retryTask(clientId: string) {
     const task = tasks.find((t) => t.clientId === clientId);
-    if (task) runUpload(clientId, task.file);
+    if (!task) return;
+    const validation = validateFileAgainstConfig(task.file, config);
+    if (!validation.valid) {
+      updateTask(clientId, { status: "error", error: validation.reason });
+      toast.error("File rejected", { description: `${task.file.name}: ${validation.reason}` });
+      return;
+    }
+    runUpload(clientId, task.file);
   }
 
   const summary = useMemo(() => {
@@ -84,7 +103,10 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
 
   return (
     <div className="space-y-4">
-      <UploadDock onFiles={handleFiles} />
+      <UploadDock
+        onFiles={handleFiles}
+        maxSizeLabel={configLoading ? undefined : `up to ${formatBytes(config.max_upload_size_bytes)} per file`}
+      />
 
       {tasks.length > 0 && (
         <div className="space-y-2 animate-fade-up">

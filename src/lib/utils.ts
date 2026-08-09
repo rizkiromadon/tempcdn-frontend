@@ -67,6 +67,60 @@ export function isPreviewable(contentType: string): boolean {
   return kind === "image";
 }
 
+/** True if `mime` matches a pattern from allowed_mime_types (supports "type/*" wildcards). */
+function matchesMimePattern(mime: string, pattern: string): boolean {
+  if (pattern === mime) return true;
+  if (pattern.endsWith("/*")) {
+    return mime.startsWith(pattern.slice(0, -1));
+  }
+  return false;
+}
+
+export interface FileValidationConfig {
+  max_upload_size_bytes: number;
+  allowed_mime_types: string[];
+  blocked_extensions: string[];
+}
+
+export interface FileValidationResult {
+  valid: boolean;
+  reason?: string;
+}
+
+/**
+ * Validates a File against server-provided upload config before it's sent
+ * over the wire: max size, blocked extensions, and allowed mime types
+ * (empty allowed_mime_types means "no restriction").
+ */
+export function validateFileAgainstConfig(
+  file: File,
+  config: FileValidationConfig
+): FileValidationResult {
+  if (config.max_upload_size_bytes > 0 && file.size > config.max_upload_size_bytes) {
+    return {
+      valid: false,
+      reason: `File exceeds the ${formatBytes(config.max_upload_size_bytes)} limit`
+    };
+  }
+
+  const dotIndex = file.name.lastIndexOf(".");
+  const ext = dotIndex >= 0 ? file.name.slice(dotIndex).toLowerCase() : "";
+  if (ext && config.blocked_extensions.some((b) => b.toLowerCase() === ext)) {
+    return { valid: false, reason: `Files with "${ext}" extension aren't allowed` };
+  }
+
+  if (config.allowed_mime_types.length > 0 && file.type) {
+    const allowed = config.allowed_mime_types.some((pattern) =>
+      matchesMimePattern(file.type, pattern)
+    );
+    if (!allowed) {
+      return { valid: false, reason: `File type "${file.type}" isn't supported` };
+    }
+  }
+
+  return { valid: true };
+}
+
 /** Fraction of TTL remaining, clamped 0..1. Used to drive burn-state color/animation. */
 export function fractionRemaining(createdAt: string, expiresAt: string, now = Date.now()): number {
   const created = new Date(createdAt).getTime();

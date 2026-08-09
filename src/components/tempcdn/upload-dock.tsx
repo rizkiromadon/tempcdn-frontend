@@ -11,7 +11,7 @@ interface UploadDockProps {
   maxSizeLabel?: string;
 }
 
-export function UploadDock({ onFiles, disabled, maxSizeLabel = "up to 500 MB per file" }: UploadDockProps) {
+export function UploadDock({ onFiles, disabled, maxSizeLabel }: UploadDockProps) {
   const onDrop = useCallback(
     (accepted: File[]) => {
       if (accepted.length) onFiles(accepted);
@@ -60,7 +60,7 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel = "up to 500 MB per
             or click to browse. Every file fades away after its lifespan.
           </p>
           <p className="text-xs text-ink-faint">
-            {maxSizeLabel} · multiple files supported
+            {maxSizeLabel ?? "checking upload limits..."} · multiple files supported
           </p>
         </div>
 
