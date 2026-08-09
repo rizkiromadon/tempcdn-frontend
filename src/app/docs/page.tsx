@@ -141,10 +141,9 @@ export default function DocsPage() {
             {API_BASE}
           </code>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
-            Configured via <code className="text-ink-soft">NEXT_PUBLIC_TEMPCDN_API_BASE</code>.
-            Defaults to <code className="text-ink-soft">http://localhost:8080/api/v1</code> if
-            unset. <code className="text-ink-soft">/healthz</code> and{" "}
-            <code className="text-ink-soft">/metrics</code> live one level up, at{" "}
+            All endpoints below are relative to this base url, except{" "}
+            <code className="text-ink-soft">/healthz</code> and{" "}
+            <code className="text-ink-soft">/metrics</code>, which live one level up at{" "}
             <code className="text-ink-soft">{HEALTH_BASE}</code>, outside{" "}
             <code className="text-ink-soft">/api/v1</code>.
           </p>
@@ -179,10 +178,7 @@ export default function DocsPage() {
             <code className="text-ink">tempcdn_upload_bytes_total</code>,{" "}
             <code className="text-ink">tempcdn_upload_errors_total</code>,{" "}
             <code className="text-ink">tempcdn_request_latency_seconds</code>, plus default
-            Go/process metrics. This app reads the counters via{" "}
-            <code className="text-ink">getTempCdnMetrics()</code> in{" "}
-            <code className="text-ink">src/lib/api.ts</code> for the network stats panel on the
-            home page.
+            Go/process metrics.
           </p>
           <CodeBlock label="request">{`curl ${HEALTH_BASE}/metrics`}</CodeBlock>
         </Section>
@@ -278,12 +274,6 @@ export default function DocsPage() {
               </StatusRow>
             </div>
           </div>
-
-          <p className="text-sm leading-relaxed text-ink-faint">
-            In this app, uploads go through <code className="text-ink-soft">uploadFile()</code> in{" "}
-            <code className="text-ink-soft">src/lib/api.ts</code>, which uses{" "}
-            <code className="text-ink-soft">XMLHttpRequest</code> to report progress.
-          </p>
         </Section>
 
         <Section id="file-info" icon={FileSearch} title="Get file info" method="GET" path="/api/v1/files/{id}">
@@ -324,12 +314,6 @@ export default function DocsPage() {
               </StatusRow>
             </div>
           </div>
-
-          <p className="text-sm leading-relaxed text-ink-faint">
-            Backed by <code className="text-ink-soft">getFileInfo()</code> in{" "}
-            <code className="text-ink-soft">src/lib/api.ts</code>, used on the{" "}
-            <code className="text-ink-soft">/files/[id]</code> detail page.
-          </p>
         </Section>
 
         <Section id="file-delete" icon={Trash2} title="Delete a file" method="DELETE" path="/api/v1/files/{id}">
@@ -357,11 +341,6 @@ export default function DocsPage() {
               </StatusRow>
             </div>
           </div>
-
-          <p className="text-sm leading-relaxed text-ink-faint">
-            Backed by <code className="text-ink-soft">deleteFile()</code> in{" "}
-            <code className="text-ink-soft">src/lib/api.ts</code>.
-          </p>
         </Section>
 
         <Section id="errors" icon={AlertTriangle} title="Error format" method="GET" path="(all endpoints)">

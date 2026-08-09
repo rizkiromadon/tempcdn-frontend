@@ -20,7 +20,7 @@ function RecentEntryRow({ entry }: { entry: RecentEntry }) {
   if (remaining <= 0) return null;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-line bg-paper p-3.5 shadow-soft">
+    <div className="flex items-center gap-3 rounded-xl border border-line bg-paper p-3.5 shadow-soft animate-fade-up">
       <FilePreview
         src={entry.cdn_url}
         contentType={entry.content_type}
@@ -74,7 +74,7 @@ export function RecentDrops() {
 
   if (entries.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line bg-paper-sunk py-10 text-center">
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line bg-paper-sunk py-10 text-center animate-fade-in">
         <Inbox className="h-5 w-5 text-ink-faint" strokeWidth={1.5} />
         <p className="text-sm font-medium text-ink-soft">
           Nothing uploaded yet on this device

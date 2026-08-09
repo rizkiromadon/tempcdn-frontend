@@ -67,7 +67,7 @@ export function FileCard({ file, onDelete, deleting }: FileCardProps) {
   }
 
   return (
-    <Card>
+    <Card className="animate-fade-up">
       <CardHeader className="items-start gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <FilePreview

@@ -40,7 +40,11 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
           {url}
         </div>
         <Button size="icon" variant="secondary" onClick={copy} disabled={disabled} aria-label="Copy link">
-          {copied ? <Check className="h-3.5 w-3.5 text-sage" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? (
+            <Check className="h-3.5 w-3.5 animate-fade-in text-sage" />
+          ) : (
+            <Copy className="h-3.5 w-3.5 animate-fade-in" />
+          )}
         </Button>
         <Button
           size="icon"

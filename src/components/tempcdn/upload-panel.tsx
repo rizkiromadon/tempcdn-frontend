@@ -87,9 +87,9 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
       <UploadDock onFiles={handleFiles} />
 
       {tasks.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2 animate-fade-up">
           {summary && summary.total > 1 && (
-            <div className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-2.5">
+            <div className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-2.5 animate-fade-up">
               <span className="text-xs text-ink-faint">
                 {summary.active > 0
                   ? `uploading ${summary.total - summary.active}/${summary.total}`
@@ -97,7 +97,7 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
               </span>
               <button
                 onClick={() => setTasks([])}
-                className="text-xs font-medium text-ink-faint transition-colors hover:text-bloom-strong"
+                className="text-xs font-medium text-ink-faint transition-all duration-150 hover:text-bloom-strong active:scale-95"
               >
                 clear list
               </button>
