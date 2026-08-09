@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 interface UploadDockProps {
   onFiles: (files: File[]) => void;
   disabled?: boolean;
+  maxSizeLabel?: string;
 }
 
-export function UploadDock({ onFiles, disabled }: UploadDockProps) {
+export function UploadDock({ onFiles, disabled, maxSizeLabel = "up to 500 MB per file" }: UploadDockProps) {
   const onDrop = useCallback(
     (accepted: File[]) => {
       if (accepted.length) onFiles(accepted);
@@ -64,6 +65,9 @@ export function UploadDock({ onFiles, disabled }: UploadDockProps) {
           </p>
           <p className="text-xs text-bone-dim">
             or click to browse. every file self-destructs after its TTL.
+          </p>
+          <p className="font-mono text-[10px] uppercase tracking-wider text-bone-faint">
+            {maxSizeLabel} · multiple files supported
           </p>
         </div>
 

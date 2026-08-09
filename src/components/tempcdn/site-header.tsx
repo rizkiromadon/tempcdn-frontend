@@ -15,7 +15,7 @@ export function SiteHeader() {
             <span className="font-mono text-sm font-bold uppercase tracking-widest text-bone">
               TempCDN
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-wider text-bone-faint">
+            <span className="hidden font-mono text-[10px] uppercase tracking-wider text-bone-faint sm:inline">
               transit storage / self-destructs
             </span>
           </div>

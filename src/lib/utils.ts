@@ -41,3 +41,38 @@ export function truncateMiddle(str: string, front = 8, back = 6): string {
   if (str.length <= front + back + 3) return str;
   return `${str.slice(0, front)}...${str.slice(-back)}`;
 }
+
+export type FileKind = "image" | "video" | "audio" | "pdf" | "text" | "archive" | "other";
+
+export function getFileKind(contentType: string): FileKind {
+  if (contentType.startsWith("image/")) return "image";
+  if (contentType.startsWith("video/")) return "video";
+  if (contentType.startsWith("audio/")) return "audio";
+  if (contentType === "application/pdf") return "pdf";
+  if (
+    contentType.startsWith("text/") ||
+    contentType === "application/json" ||
+    contentType === "application/xml"
+  )
+    return "text";
+  if (
+    /zip|tar|rar|7z|gzip|compressed/.test(contentType)
+  )
+    return "archive";
+  return "other";
+}
+
+export function isPreviewable(contentType: string): boolean {
+  const kind = getFileKind(contentType);
+  return kind === "image";
+}
+
+/** Fraction of TTL remaining, clamped 0..1. Used to drive burn-state color/animation. */
+export function fractionRemaining(createdAt: string, expiresAt: string, now = Date.now()): number {
+  const created = new Date(createdAt).getTime();
+  const expires = new Date(expiresAt).getTime();
+  const total = expires - created;
+  if (total <= 0) return 0;
+  const remaining = expires - now;
+  return Math.max(0, Math.min(1, remaining / total));
+}

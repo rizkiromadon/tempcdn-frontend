@@ -24,10 +24,11 @@ export function LookupForm() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="paste a file id..."
+          aria-label="File ID"
           className="h-10 w-full border border-steel bg-void pl-9 pr-3 font-mono text-xs text-bone placeholder:text-bone-faint focus:border-hazard focus:outline-none"
         />
       </div>
-      <Button type="submit" variant="secondary">
+      <Button type="submit" variant="secondary" disabled={!value.trim()}>
         look up
       </Button>
     </form>

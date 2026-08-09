@@ -1,5 +1,6 @@
 import { UploadPanel } from "@/components/tempcdn/upload-panel";
 import { LookupForm } from "@/components/tempcdn/lookup-form";
+import { RecentDrops } from "@/components/tempcdn/recent-drops";
 import { Timer, ShieldOff, Fingerprint } from "lucide-react";
 
 const facts = [
@@ -22,15 +23,15 @@ const facts = [
 
 export default function HomePage() {
   return (
-    <div className="mx-auto max-w-5xl px-5 pb-24 pt-14">
-      <section className="mb-12 space-y-4">
+    <div className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:pt-14">
+      <section className="mb-10 space-y-4 sm:mb-12">
         <div className="inline-flex items-center gap-2 border border-steel-dim bg-surface-raised px-2.5 py-1">
           <span className="h-1.5 w-1.5 animate-pulse-slow rounded-full bg-hazard" />
           <span className="font-mono text-[10px] uppercase tracking-widest text-bone-dim">
             live storage / auto-purge enabled
           </span>
         </div>
-        <h1 className="max-w-2xl font-mono text-3xl font-bold leading-tight text-bone sm:text-4xl">
+        <h1 className="max-w-2xl font-mono text-[1.75rem] font-bold leading-tight text-bone sm:text-4xl">
           Files pass through.
           <br />
           <span className="text-hazard">They don&apos;t stay.</span>
@@ -46,12 +47,9 @@ export default function HomePage() {
         <UploadPanel />
       </section>
 
-      <section className="mb-16 grid gap-3 sm:grid-cols-3">
+      <section className="mb-14 grid gap-3 sm:grid-cols-3">
         {facts.map((fact) => (
-          <div
-            key={fact.title}
-            className="border border-steel-dim bg-surface p-4"
-          >
+          <div key={fact.title} className="border border-steel-dim bg-surface p-4">
             <fact.icon className="mb-3 h-4 w-4 text-hazard" strokeWidth={1.75} />
             <h3 className="mb-1.5 font-mono text-xs font-semibold uppercase tracking-wide text-bone">
               {fact.title}
@@ -59,6 +57,15 @@ export default function HomePage() {
             <p className="text-xs leading-relaxed text-bone-dim">{fact.body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="mb-14 border-t border-steel-dim pt-8">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-mono text-xs font-semibold uppercase tracking-widest text-bone-faint">
+            recent drops on this device
+          </h2>
+        </div>
+        <RecentDrops />
       </section>
 
       <section className="border-t border-steel-dim pt-8">
