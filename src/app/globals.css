@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-steel-dim;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-void text-bone antialiased;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.015) 0%, transparent 12%),
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(244, 162, 38, 0.06), transparent);
+  }
+
+  ::selection {
+    background: rgba(244, 162, 38, 0.3);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid #f4a226;
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b0c0d;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3a3d40;
+    border: 2px solid #0b0c0d;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #54585c;
+  }
+}
+
+@layer utilities {
+  .bg-grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: theme("backgroundImage.grain");
+    z-index: 1;
+  }
+
+  .text-mono-tight {
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .clip-corner {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
