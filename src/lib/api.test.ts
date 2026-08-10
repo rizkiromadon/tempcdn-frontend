@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getTempCdnMetrics, getConfig, getFileInfo, deleteFile, TempCdnError } from "./api";
+import { getTempCdnStats, getConfig, getFileInfo, deleteFile, TempCdnError } from "./api";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -8,82 +8,73 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-function textResponse(body: string, status = 200): Response {
-  return new Response(body, {
-    status,
-    headers: { "content-type": "text/plain" }
-  });
-}
-
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("getTempCdnMetrics (Prometheus text parser)", () => {
-  it("parses unlabeled counters (current backend shape)", async () => {
-    const body = [
-      "# HELP tempcdn_uploads_total total uploads",
-      "# TYPE tempcdn_uploads_total counter",
-      "tempcdn_uploads_total 42",
-      "tempcdn_upload_bytes_total 123456",
-      "tempcdn_upload_errors_total 3"
-    ].join("\n");
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(textResponse(body)));
+describe("getTempCdnStats (JSON /api/v1/stats)", () => {
+  it("maps the documented response shape", async () => {
+    const body = {
+      active_file_count: 17,
+      active_bytes: 3885936,
+      average_file_bytes: 228584,
+      content_type_breakdown: { application: 1, image: 16 },
+      lifetime_uploads_total: 19,
+      lifetime_upload_bytes_total: 4479696,
+      lifetime_upload_errors_total: 0,
+      generated_at: "2026-08-10T09:26:48Z"
+    };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(body)));
 
-    const metrics = await getTempCdnMetrics();
-    expect(metrics).toEqual({
-      uploadsTotal: 42,
-      uploadBytesTotal: 123456,
-      uploadErrorsTotal: 3
+    const stats = await getTempCdnStats();
+    expect(stats).toEqual({
+      activeFileCount: 17,
+      activeBytes: 3885936,
+      averageFileBytes: 228584,
+      contentTypeBreakdown: { application: 1, image: 16 },
+      uploadsTotal: 19,
+      uploadBytesTotal: 4479696,
+      uploadErrorsTotal: 0,
+      generatedAt: "2026-08-10T09:26:48Z"
     });
   });
 
-  it("parses labeled counters (regression for task 2.2)", async () => {
-    const body = [
-      'tempcdn_uploads_total{status="ok"} 42',
-      'tempcdn_upload_bytes_total{bucket="default"} 123456',
-      'tempcdn_upload_errors_total{status="failed"} 3'
-    ].join("\n");
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(textResponse(body)));
+  it("defaults missing fields rather than throwing", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({})));
 
-    const metrics = await getTempCdnMetrics();
-    expect(metrics).toEqual({
-      uploadsTotal: 42,
-      uploadBytesTotal: 123456,
-      uploadErrorsTotal: 3
-    });
-  });
-
-  it("handles scientific-notation values", async () => {
-    const body = "tempcdn_uploads_total 4.2e+01";
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(textResponse(body)));
-
-    const metrics = await getTempCdnMetrics();
-    expect(metrics.uploadsTotal).toBe(42);
-  });
-
-  it("defaults missing metrics to 0 rather than throwing", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(textResponse("# empty\n")));
-
-    const metrics = await getTempCdnMetrics();
-    expect(metrics).toEqual({
+    const stats = await getTempCdnStats();
+    expect(stats).toEqual({
+      activeFileCount: 0,
+      activeBytes: 0,
+      averageFileBytes: 0,
+      contentTypeBreakdown: {},
       uploadsTotal: 0,
       uploadBytesTotal: 0,
-      uploadErrorsTotal: 0
+      uploadErrorsTotal: 0,
+      generatedAt: ""
     });
   });
 
-  it("does not confuse one metric's value with a similarly-named metric", async () => {
-    // tempcdn_uploads_total should not accidentally match
-    // tempcdn_uploads_total_by_region or similar prefixed names.
-    const body = [
-      "tempcdn_uploads_total_by_region 999",
-      "tempcdn_uploads_total 42"
-    ].join("\n");
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(textResponse(body)));
+  it("throws a TempCdnError on a non-2xx response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "stats unavailable" }, 500))
+    );
 
-    const metrics = await getTempCdnMetrics();
-    expect(metrics.uploadsTotal).toBe(42);
+    await expect(getTempCdnStats()).rejects.toMatchObject({
+      message: "stats unavailable",
+      status: 500
+    });
+  });
+
+  it("requests the stats endpoint under the versioned API base", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await getTempCdnStats();
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain("/api/v1/stats");
   });
 });
 

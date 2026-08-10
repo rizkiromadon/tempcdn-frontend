@@ -3,17 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { API_BASE } from "@/lib/api";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
-import {
-  Terminal,
-  HeartPulse,
-  Activity,
-  UploadCloud,
-  FileSearch,
-  Trash2,
-  AlertTriangle,
-  ShieldAlert,
-  Settings
-} from "lucide-react";
+import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "API Docs — TempCDN",
@@ -105,17 +95,11 @@ function Section({
   );
 }
 
-const HEALTH_BASE = API_BASE.replace(/\/api\/v1$/, "");
-
 const nav = [
-  { id: "health", label: "Health check" },
-  { id: "metrics", label: "Metrics" },
   { id: "config", label: "Upload config" },
   { id: "upload", label: "Upload a file" },
   { id: "file-info", label: "Get file info" },
-  { id: "file-delete", label: "Delete a file" },
-  { id: "errors", label: "Error format" },
-  { id: "cors", label: "CORS" }
+  { id: "file-delete", label: "Delete a file" }
 ];
 
 export default function DocsPage() {
@@ -132,8 +116,8 @@ export default function DocsPage() {
           API docs
         </h1>
         <p className="max-w-lg text-base leading-relaxed text-ink-soft">
-          TempCDN accepts anonymous uploads over a small JSON/multipart API.
-          No authentication, no API keys — just a base URL.
+          Everything you need to upload, look up, and delete files through the
+          TempCDN API. No authentication, no API keys — just a base URL.
         </p>
         <div className="max-w-lg rounded-xl border border-line bg-paper p-5 shadow-soft">
           <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
@@ -143,11 +127,7 @@ export default function DocsPage() {
             {API_BASE}
           </code>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
-            All endpoints below are relative to this base url, except{" "}
-            <code className="text-ink-soft">/healthz</code> and{" "}
-            <code className="text-ink-soft">/metrics</code>, which live one level up at{" "}
-            <code className="text-ink-soft">{HEALTH_BASE}</code>, outside{" "}
-            <code className="text-ink-soft">/api/v1</code>.
+            All endpoints below are relative to this base url.
           </p>
         </div>
       </section>
@@ -166,25 +146,6 @@ export default function DocsPage() {
       </nav>
 
       <div className="space-y-14">
-        <Section id="health" icon={HeartPulse} title="Health check" method="GET" path="/healthz">
-          <p className="text-sm leading-relaxed text-ink-soft">
-            Returns service liveness status. Useful for uptime checks and load balancer probes.
-          </p>
-          <CodeBlock label="request">{`curl ${HEALTH_BASE}/healthz`}</CodeBlock>
-          <CodeBlock label="200 OK">{`{ "status": "ok" }`}</CodeBlock>
-        </Section>
-
-        <Section id="metrics" icon={Activity} title="Metrics" method="GET" path="/metrics">
-          <p className="text-sm leading-relaxed text-ink-soft">
-            Prometheus text-format metrics: <code className="text-ink">tempcdn_uploads_total</code>,{" "}
-            <code className="text-ink">tempcdn_upload_bytes_total</code>,{" "}
-            <code className="text-ink">tempcdn_upload_errors_total</code>,{" "}
-            <code className="text-ink">tempcdn_request_latency_seconds</code>, plus default
-            Go/process metrics.
-          </p>
-          <CodeBlock label="request">{`curl ${HEALTH_BASE}/metrics`}</CodeBlock>
-        </Section>
-
         <Section id="config" icon={Settings} title="Upload config" method="GET" path="/api/v1/config">
           <p className="text-sm leading-relaxed text-ink-soft">
             Returns the server&apos;s current upload constraints — max file size, allowed MIME
@@ -382,13 +343,13 @@ export default function DocsPage() {
             <code className="text-ink">id</code> alone is no longer enough to delete it.
           </p>
 
-          <div className="rounded-xl border border-coral/20 bg-coral-soft px-4 py-3">
+          <div className="rounded-xl border border-line bg-paper-sunk px-4 py-3">
             <p className="text-sm leading-relaxed text-ink-soft">
-              <strong className="text-ink">Breaking change:</strong> integrations that stored only
-              the file <code className="text-ink">id</code> and called DELETE without a token will
-              start getting <code className="text-ink">403 Forbidden</code>. Files uploaded before
-              this change also have no token on record and can no longer be deleted manually —
-              they&apos;re still removed automatically once their TTL expires.
+              Knowing a file&apos;s <code className="text-ink">id</code> alone is not enough to
+              delete it — you must have the matching{" "}
+              <code className="text-ink">delete_token</code>. Files with no token on record (e.g.
+              shared links you don&apos;t own) can&apos;t be deleted this way; they&apos;re still
+              removed automatically once their TTL expires.
             </p>
           </div>
 
@@ -421,29 +382,6 @@ export default function DocsPage() {
               </StatusRow>
             </div>
           </div>
-        </Section>
-
-        <Section id="errors" icon={AlertTriangle} title="Error format" method="GET" path="(all endpoints)">
-          <p className="text-sm leading-relaxed text-ink-soft">
-            Every error response shares the same JSON shape:
-          </p>
-          <CodeBlock>{`{ "error": "human-readable error message" }`}</CodeBlock>
-        </Section>
-
-        <Section id="cors" icon={ShieldAlert} title="CORS" method="GET" path="(policy)">
-          <ul className="list-inside list-disc space-y-1.5 text-sm leading-relaxed text-ink-soft">
-            <li>
-              <code className="text-ink">POST /api/v1/upload</code> and{" "}
-              <code className="text-ink">DELETE /api/v1/files/{"{id}"}</code> use a strict CORS
-              policy — the allowed origin is set server-side.
-            </li>
-            <li>
-              <code className="text-ink">GET /api/v1/files/{"{id}"}</code> and{" "}
-              <code className="text-ink">GET /api/v1/config</code> use a permissive CORS policy (
-              <code className="text-ink">*</code>), since neither file metadata nor upload config
-              is sensitive, and both are commonly read from arbitrary front-end origins.
-            </li>
-          </ul>
         </Section>
       </div>
     </div>

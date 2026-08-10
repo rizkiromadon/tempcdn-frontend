@@ -23,7 +23,7 @@ async function parseError(res: Response, fallbackMessage?: string): Promise<neve
   throw new TempCdnError(message, res.status);
 }
 
-/** Default timeout for read-only calls (config/file-info/health/metrics). */
+/** Default timeout for read-only calls (config/file-info/health/stats). */
 const DEFAULT_TIMEOUT_MS = 10_000;
 /** Deletes get a little more headroom than reads. */
 const DELETE_TIMEOUT_MS = 15_000;
@@ -157,37 +157,37 @@ export async function checkHealth(): Promise<{ status: string }> {
   return res.json();
 }
 
-export interface TempCdnMetrics {
+export interface TempCdnStats {
+  activeFileCount: number;
+  activeBytes: number;
+  averageFileBytes: number;
+  contentTypeBreakdown: Record<string, number>;
   uploadsTotal: number;
   uploadBytesTotal: number;
   uploadErrorsTotal: number;
+  generatedAt: string;
 }
 
 /**
- * Fetches the Prometheus text-format /metrics endpoint and extracts the
- * tempcdn_* counters. Any metric not present in the response is left
- * undefined-safe by defaulting to 0.
+ * Fetches JSON stats from GET /api/v1/stats.
+ *
+ * Replaces the old Prometheus text-format /metrics endpoint (removed).
+ * Numeric fields default to 0 and contentTypeBreakdown defaults to {}
+ * when absent, so a partial/older server shape doesn't throw.
  */
-export async function getTempCdnMetrics(): Promise<TempCdnMetrics> {
-  const base = API_BASE.replace(/\/api\/v1$/, "");
-  const res = await fetchWithTimeout(`${base}/metrics`, { cache: "no-store" });
+export async function getTempCdnStats(): Promise<TempCdnStats> {
+  const res = await fetchWithTimeout(`${API_BASE}/stats`, { cache: "no-store" });
   if (!res.ok) return parseError(res);
-  const text = await res.text();
-
-  const readMetric = (name: string): number => {
-    // Tolerates an optional label block after the metric name, e.g.
-    // `tempcdn_uploads_total{status="ok"} 42`, matching Prometheus text
-    // format in general rather than only the current unlabeled-counter
-    // shape shown in docs/page.tsx. If the backend later adds labels to
-    // these counters, this keeps reading them instead of silently
-    // returning 0.
-    const match = text.match(new RegExp(`^${name}(\\{[^}]*\\})?\\s+([0-9eE+.-]+)$`, "m"));
-    return match ? Number(match[2]) : 0;
-  };
+  const body = await res.json();
 
   return {
-    uploadsTotal: readMetric("tempcdn_uploads_total"),
-    uploadBytesTotal: readMetric("tempcdn_upload_bytes_total"),
-    uploadErrorsTotal: readMetric("tempcdn_upload_errors_total")
+    activeFileCount: body?.active_file_count ?? 0,
+    activeBytes: body?.active_bytes ?? 0,
+    averageFileBytes: body?.average_file_bytes ?? 0,
+    contentTypeBreakdown: body?.content_type_breakdown ?? {},
+    uploadsTotal: body?.lifetime_uploads_total ?? 0,
+    uploadBytesTotal: body?.lifetime_upload_bytes_total ?? 0,
+    uploadErrorsTotal: body?.lifetime_upload_errors_total ?? 0,
+    generatedAt: body?.generated_at ?? ""
   };
 }

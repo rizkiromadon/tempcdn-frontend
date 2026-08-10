@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UploadCloud, HardDrive, AlertTriangle } from "lucide-react";
-import { getTempCdnMetrics, type TempCdnMetrics } from "@/lib/api";
+import { UploadCloud, HardDrive, AlertTriangle, Files } from "lucide-react";
+import { getTempCdnStats, type TempCdnStats } from "@/lib/api";
 import { formatBytes } from "@/lib/utils";
 
 const POLL_INTERVAL_MS = 15000;
 
 export function LiveStats() {
-  const [metrics, setMetrics] = useState<TempCdnMetrics | null>(null);
+  const [metrics, setMetrics] = useState<TempCdnStats | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function LiveStats() {
 
     async function poll() {
       try {
-        const data = await getTempCdnMetrics();
+        const data = await getTempCdnStats();
         if (!cancelled) {
           setMetrics(data);
           setFailed(false);
@@ -44,6 +44,11 @@ export function LiveStats() {
 
   const stats = [
     {
+      icon: Files,
+      label: "active files",
+      value: metrics ? metrics.activeFileCount.toLocaleString() : "—"
+    },
+    {
       icon: UploadCloud,
       label: "uploads processed",
       value: metrics ? metrics.uploadsTotal.toLocaleString() : "—"
@@ -61,7 +66,7 @@ export function LiveStats() {
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
         <div key={stat.label} className="rounded-xl border border-line bg-paper p-5 shadow-soft">
           <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-bloom-soft">
