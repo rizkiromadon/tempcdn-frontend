@@ -79,7 +79,7 @@ export function UploadRow({ task, onRemove, onRetry }: UploadRowProps) {
             {onRetry && (
               <button
                 onClick={() => onRetry(task.clientId)}
-                className="flex shrink-0 items-center gap-1 text-xs font-medium text-ink-faint transition-colors hover:text-bloom-strong"
+                className="flex shrink-0 items-center gap-1 rounded-md text-xs font-medium text-ink-faint transition-all duration-150 hover:text-bloom-strong active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
               >
                 <RotateCw className="h-3 w-3" />
                 retry

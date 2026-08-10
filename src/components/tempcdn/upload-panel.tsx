@@ -234,7 +234,7 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
                   filesByClientIdRef.current.clear();
                   setTasks([]);
                 }}
-                className="text-xs font-medium text-ink-faint transition-all duration-150 hover:text-bloom-strong active:scale-95"
+                className="rounded-md text-xs font-medium text-ink-faint transition-all duration-150 hover:text-bloom-strong active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
               >
                 clear list
               </button>

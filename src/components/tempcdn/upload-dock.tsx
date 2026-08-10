@@ -47,8 +47,9 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel, acceptedMimeTypes 
     <div
       {...getRootProps()}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-line bg-paper px-6 py-16 text-center shadow-soft transition-all",
+        "group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-line bg-paper px-6 py-16 text-center shadow-soft transition-all duration-200",
         "hover:border-bloom/50 hover:bg-bloom-soft/40",
+        "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15",
         isDragActive && "border-bloom bg-bloom-soft scale-[1.01]",
         disabled && "cursor-not-allowed opacity-50"
       )}
@@ -58,7 +59,7 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel, acceptedMimeTypes 
       <div className="relative mx-auto flex max-w-sm flex-col items-center gap-4">
         <div
           className={cn(
-            "flex h-16 w-16 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-all",
+            "flex h-16 w-16 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-all duration-200",
             "group-hover:scale-105",
             isDragActive && "scale-110 bg-bloom text-white animate-breathe"
           )}

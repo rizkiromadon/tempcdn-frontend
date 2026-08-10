@@ -158,7 +158,7 @@ export default function DocsPage() {
           <Link
             key={item.id}
             href={`#${item.id}`}
-            className="rounded-full border border-line bg-paper px-4 py-1.5 text-xs font-medium text-ink-soft shadow-soft transition-colors hover:border-bloom/40 hover:text-bloom-strong"
+            className="rounded-full border border-line bg-paper px-4 py-1.5 text-xs font-medium text-ink-soft shadow-soft transition-colors duration-200 hover:border-bloom/40 hover:text-bloom-strong focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
           >
             {item.label}
           </Link>

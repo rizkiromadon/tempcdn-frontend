@@ -43,7 +43,7 @@ export default function HomePage() {
           </Button>
           <Link
             href="/docs"
-            className="text-sm font-medium text-ink-soft transition-colors hover:text-bloom-strong"
+            className="rounded-md text-sm font-medium text-ink-soft transition-colors duration-200 hover:text-bloom-strong focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
           >
             Read the API docs
           </Link>

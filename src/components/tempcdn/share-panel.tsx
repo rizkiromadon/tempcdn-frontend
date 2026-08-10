@@ -90,7 +90,7 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
               className="shrink-0 rounded-lg border border-line bg-paper"
             />
           ) : (
-            <div className="h-[90px] w-[90px] shrink-0 animate-pulse rounded-lg border border-line bg-paper" />
+            <div className="h-[90px] w-[90px] shrink-0 animate-pulse-slow rounded-lg border border-line bg-paper-sunk" />
           )}
           <p className="text-sm leading-relaxed text-ink-soft">
             Scan to open this file on another device. The code stops working the
