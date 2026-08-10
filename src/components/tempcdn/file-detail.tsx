@@ -57,7 +57,37 @@ export function FileDetail({ id }: FileDetailProps) {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [attempt, setAttempt] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [cameFromInApp, setCameFromInApp] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Only treat "back" as safe to use when we actually navigated here
+    // from elsewhere in this app (e.g. clicked from /upload's recent
+    // list). A fresh load — direct link, new tab, refresh — has no
+    // in-app history to go back to, so router.back() would either do
+    // nothing or leave the site entirely.
+    try {
+      const ref = document.referrer;
+      setCameFromInApp(Boolean(ref) && new URL(ref).origin === window.location.origin);
+    } catch {
+      setCameFromInApp(false);
+    }
+  }, []);
+
+  /**
+   * Returns to wherever the user came from (recent uploads, lookup
+   * search, etc.) instead of always dropping them on the landing page.
+   * Falls back to /upload — not "/" — since every path that leads here
+   * (recent drops, the lookup form, a freshly uploaded file) originates
+   * from the upload page, not the marketing landing page.
+   */
+  function goBack() {
+    if (cameFromInApp) {
+      router.back();
+    } else {
+      router.push("/upload");
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -98,7 +128,7 @@ export function FileDetail({ id }: FileDetailProps) {
       await deleteFile(fileId, deleteToken);
       removeRecentEntry(fileId);
       toast.success("File deleted");
-      router.push("/");
+      goBack();
     } catch (err) {
       const message = err instanceof TempCdnError ? err.message : "Delete failed";
       toast.error("Could not delete file", { description: message });
@@ -109,9 +139,9 @@ export function FileDetail({ id }: FileDetailProps) {
 
   return (
     <div className="mx-auto max-w-xl px-5 pb-24 pt-10 sm:pt-14">
-      <Button variant="ghost" size="sm" className="mb-6 -ml-2" onClick={() => router.push("/")}>
+      <Button variant="ghost" size="sm" className="mb-6 -ml-2" onClick={goBack}>
         <ArrowLeft className="h-3.5 w-3.5" />
-        back home
+        back
       </Button>
 
       {state.kind === "loading" && <DetailSkeleton />}
@@ -125,7 +155,7 @@ export function FileDetail({ id }: FileDetailProps) {
             <span className="font-mono text-ink">{id}</span>. it may have never
             existed, expired already, or the id was mistyped.
           </p>
-          <Button variant="secondary" size="sm" onClick={() => router.push("/")}>
+          <Button variant="secondary" size="sm" onClick={() => router.push("/upload")}>
             upload a new file
           </Button>
         </div>
