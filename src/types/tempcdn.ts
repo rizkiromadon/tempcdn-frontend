@@ -33,6 +33,20 @@ export interface TempCdnConfig {
   file_ttl_hours: number;
 }
 
+export interface NodeInfo {
+  node_id: string;
+  hostname: string;
+  status: "online" | "offline" | string;
+  started_at: string;
+  last_heartbeat_at: string;
+  seconds_since_heartbeat: number;
+}
+
+export interface NodesResponse {
+  nodes: NodeInfo[];
+  generated_at: string;
+}
+
 export type UploadStatus = "queued" | "uploading" | "done" | "error";
 
 export interface UploadTask {

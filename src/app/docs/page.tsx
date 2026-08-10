@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { API_BASE, API_BASES } from "@/lib/api";
+import { getApiBases } from "@/lib/api";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
@@ -102,7 +102,10 @@ const nav = [
   { id: "file-delete", label: "Delete a file" }
 ];
 
-export default function DocsPage() {
+export default async function DocsPage() {
+  const bases = await getApiBases();
+  const API_BASE = bases[0];
+
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-14 sm:pt-20">
       <section className="mb-12 space-y-4 sm:mb-14">
@@ -128,9 +131,9 @@ export default function DocsPage() {
           </code>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
             All endpoints below are relative to this base url.
-            {API_BASES.length > 1 && (
+            {bases.length > 1 && (
               <>
-                {" "}Requests are load-balanced across {API_BASES.length} servers with
+                {" "}Requests are load-balanced across {bases.length} servers with
                 automatic failover; this is one of them.
               </>
             )}

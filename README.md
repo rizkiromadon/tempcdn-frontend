@@ -28,6 +28,23 @@ The app expects the backend's `/api/v1` routes (`/upload`, `/files/{id}`)
 and `/healthz` to be reachable at `NEXT_PUBLIC_TEMPCDN_API_BASE` (with
 `/healthz` derived by stripping the `/api/v1` suffix).
 
+### Multi-server / production node discovery
+
+Instead of hardcoding backend URLs, production deployments can set
+`NEXT_PUBLIC_TEMPCDN_DOMAIN` (e.g. `productiondomain.com`) and let the
+frontend discover live nodes at runtime via `GET /api/v1/nodes`. Each node
+is addressed as `https://{node_id}.{domain}/api/v1`, and only nodes with
+`status: "online"` are used for round-robin + failover — a node that goes
+offline drops out automatically on the next discovery refresh (cached for
+30s, or refreshed immediately after a failover). Discovery itself
+bootstraps against a seed node (`NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE`,
+default `srv1`), trying a few other well-known ids if the seed is
+unreachable. See `.env.example` for details.
+
+Without `NEXT_PUBLIC_TEMPCDN_DOMAIN`, the app falls back to the static
+`NEXT_PUBLIC_TEMPCDN_API_BASES` / `NEXT_PUBLIC_TEMPCDN_API_BASE` env vars
+as before, which is what local dev uses.
+
 ## Structure
 
 ```

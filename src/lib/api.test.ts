@@ -1,6 +1,23 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { getTempCdnStats, getConfig, getFileInfo, deleteFile, TempCdnError } from "./api";
 
+function nodesResponse(
+  nodes: Array<{ node_id: string; status: string }>,
+  generatedAt = "2026-08-10T22:37:43Z"
+) {
+  return {
+    nodes: nodes.map((n) => ({
+      node_id: n.node_id,
+      hostname: `srv-${n.node_id}-hibernate-xxxx`,
+      status: n.status,
+      started_at: "2026-08-10T22:35:28Z",
+      last_heartbeat_at: "2026-08-10T22:37:43Z",
+      seconds_since_heartbeat: 0.5
+    })),
+    generated_at: generatedAt
+  };
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -207,11 +224,12 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
 
   it("parses the comma-separated env var, trimming whitespace and trailing slashes", async () => {
     const api = await loadApiWithBases(" https://srv1.tempcdn.eu.cc/api/v1/ , https://srv2.tempcdn.eu.cc/api/v1 ");
-    expect(api.API_BASES).toEqual([
+    const resolved = await api.getApiBases();
+    expect(resolved).toEqual([
       "https://srv1.tempcdn.eu.cc/api/v1",
       "https://srv2.tempcdn.eu.cc/api/v1"
     ]);
-    expect(api.API_BASE).toBe("https://srv1.tempcdn.eu.cc/api/v1");
+    expect(resolved[0]).toBe("https://srv1.tempcdn.eu.cc/api/v1");
   });
 
   it("rotates the starting base across successive calls", async () => {
@@ -286,6 +304,116 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
     vi.resetModules();
     const api = await import("./api");
 
-    expect(api.API_BASES).toEqual(["https://solo.tempcdn.eu.cc/api/v1"]);
+    expect(await api.getApiBases()).toEqual(["https://solo.tempcdn.eu.cc/api/v1"]);
+  });
+});
+
+describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  async function loadApiWithDomain(domain: string, bootstrapNode = "srv1") {
+    vi.stubEnv("NEXT_PUBLIC_TEMPCDN_DOMAIN", domain);
+    vi.stubEnv("NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE", bootstrapNode);
+    vi.resetModules();
+    return import("./api");
+  }
+
+  it("bootstraps against the seed node and derives bases from node_id + domain", async () => {
+    const api = await loadApiWithDomain("productiondomain.com");
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse(
+        nodesResponse([
+          { node_id: "srv3", status: "online" },
+          { node_id: "srv1", status: "online" },
+          { node_id: "srv4", status: "online" },
+          { node_id: "srv2", status: "online" }
+        ])
+      )
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const bases = await api.getApiBases();
+
+    expect(fetchMock.mock.calls[0][0]).toBe("https://srv1.productiondomain.com/api/v1/nodes");
+    expect(bases).toEqual(
+      expect.arrayContaining([
+        "https://srv1.productiondomain.com/api/v1",
+        "https://srv2.productiondomain.com/api/v1",
+        "https://srv3.productiondomain.com/api/v1",
+        "https://srv4.productiondomain.com/api/v1"
+      ])
+    );
+    expect(bases).toHaveLength(4);
+  });
+
+  it("excludes offline nodes from the derived base list", async () => {
+    const api = await loadApiWithDomain("productiondomain.com");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          nodesResponse([
+            { node_id: "srv1", status: "online" },
+            { node_id: "srv2", status: "offline" }
+          ])
+        )
+      )
+    );
+
+    const bases = await api.getApiBases();
+
+    expect(bases).toEqual(["https://srv1.productiondomain.com/api/v1"]);
+  });
+
+  it("tries the next well-known seed node if the first seed is unreachable", async () => {
+    const api = await loadApiWithDomain("productiondomain.com");
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("network down")) // srv1 unreachable
+      .mockResolvedValueOnce(
+        jsonResponse(nodesResponse([{ node_id: "srv2", status: "online" }]))
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const bases = await api.getApiBases();
+
+    expect(fetchMock.mock.calls[0][0]).toBe("https://srv1.productiondomain.com/api/v1/nodes");
+    expect(fetchMock.mock.calls[1][0]).toBe("https://srv2.productiondomain.com/api/v1/nodes");
+    expect(bases).toEqual(["https://srv2.productiondomain.com/api/v1"]);
+  });
+
+  it("caches the discovered node list across calls within the TTL", async () => {
+    const api = await loadApiWithDomain("productiondomain.com");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse(nodesResponse([{ node_id: "srv1", status: "online" }]))
+      )
+      .mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await api.getConfig();
+    await api.getConfig();
+
+    // Exactly one /nodes discovery call, plus one /config call per getConfig().
+    const nodesCalls = fetchMock.mock.calls.filter(([url]) => (url as string).includes("/nodes"));
+    expect(nodesCalls).toHaveLength(1);
+  });
+
+  it("getNodes() returns the raw cluster node list", async () => {
+    const api = await loadApiWithDomain("productiondomain.com");
+    const payload = nodesResponse([
+      { node_id: "srv1", status: "online" },
+      { node_id: "srv2", status: "online" }
+    ]);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(payload)));
+
+    const result = await api.getNodes();
+
+    expect(result.nodes).toHaveLength(2);
+    expect(result.nodes.map((n) => n.node_id)).toEqual(["srv1", "srv2"]);
   });
 });

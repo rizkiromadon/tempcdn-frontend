@@ -1,21 +1,51 @@
-import type { UploadedFile, TempCdnConfig } from "@/types/tempcdn";
+import type { UploadedFile, TempCdnConfig, NodesResponse } from "@/types/tempcdn";
 
 /**
- * Round-robin + failover across multiple backend instances.
+ * Dynamic node discovery + round-robin + failover across multiple backend
+ * instances.
  *
- * Set NEXT_PUBLIC_TEMPCDN_API_BASES to a comma-separated list of API base
- * URLs (e.g. "https://srv1.tempcdn.eu.cc/api/v1,https://srv2.tempcdn.eu.cc/api/v1,https://srv3.tempcdn.eu.cc/api/v1")
- * to spread requests across several servers. Falls back to the single
- * NEXT_PUBLIC_TEMPCDN_API_BASE for backward compatibility when only one
- * server is configured (or in local dev).
+ * Backends are no longer hardcoded via env. Instead, set
+ * NEXT_PUBLIC_TEMPCDN_DOMAIN to the production domain (e.g.
+ * "productiondomain.com"). Each backend node is reachable at
+ * "https://{node_id}.{domain}/api/v1", and the live set of nodes (plus
+ * their online/offline status) is discovered by calling GET /api/v1/nodes
+ * against a bootstrap node.
  *
- * This only works correctly when every base points at instances sharing
- * one metadata store (see backend README "Running Multiple Instances") —
- * otherwise a request that round-robins to a different server than the one
+ * Bootstrapping: since there's no base URL before discovery has run, the
+ * very first /nodes call is made against a seed node
+ * (NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE, default "srv1"). Once that call
+ * succeeds we have a full node list and no longer need the seed - it's
+ * only a bootstrap, not treated specially afterwards. If the seed itself
+ * is offline/unreachable, discovery falls back to trying a few other
+ * well-known node ids (srv2..srv6) before giving up.
+ *
+ * The discovered list is cached for NODES_CACHE_TTL_MS and shared by all
+ * callers; only nodes reporting status "online" are used for actual API
+ * traffic. This only works correctly when every online node shares one
+ * metadata store (see backend README "Running Multiple Instances") -
+ * otherwise a request that round-robins to a different node than the one
  * that handled an earlier request (e.g. upload then get-info) won't find
  * the record it's looking for.
+ *
+ * For local dev (or if NEXT_PUBLIC_TEMPCDN_DOMAIN isn't set), this falls
+ * back to the old static env-based configuration:
+ * NEXT_PUBLIC_TEMPCDN_API_BASES (comma-separated) or
+ * NEXT_PUBLIC_TEMPCDN_API_BASE (single).
  */
-const API_BASES: readonly string[] = (() => {
+const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_TEMPCDN_DOMAIN?.trim().replace(/\/+$/, "");
+const BOOTSTRAP_NODE_IDS: readonly string[] = (
+  process.env.NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE?.trim() || "srv1"
+)
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean)
+  .concat(["srv2", "srv3", "srv4", "srv5", "srv6"]);
+
+function nodeBase(nodeId: string): string {
+  return `https://${nodeId}.${PRODUCTION_DOMAIN}/api/v1`;
+}
+
+const STATIC_BASES: readonly string[] = (() => {
   const multi = process.env.NEXT_PUBLIC_TEMPCDN_API_BASES;
   if (multi && multi.trim() !== "") {
     const bases = multi
@@ -28,35 +58,138 @@ const API_BASES: readonly string[] = (() => {
   return [single.replace(/\/+$/, "")];
 })();
 
-/**
- * All configured backend bases, in the order they were declared (not
- * rotation order). Exposed mainly so the docs page can note when more than
- * one server is in play.
- */
-export { API_BASES };
+/** How long a discovered node list is trusted before re-fetching /nodes. */
+const NODES_CACHE_TTL_MS = 30_000;
+/** Short timeout for the /nodes discovery call itself. */
+const NODES_TIMEOUT_MS = 5_000;
+
+let cachedOnlineBases: readonly string[] | null = null;
+let cacheExpiresAt = 0;
+/** In-flight discovery promise, so concurrent callers share one request. */
+let discoveryInFlight: Promise<readonly string[]> | null = null;
 
 /**
- * The first configured base, exposed for call sites that just need *a*
- * representative base URL to display (e.g. the docs page's curl examples)
- * rather than to actually make a load-balanced request.
+ * Calls GET /api/v1/nodes against the given base and returns the base URLs
+ * of every node reporting status "online". Throws on network error, non-ok
+ * response, or a payload with no online nodes (all treated as discovery
+ * failure by the caller, which tries the next seed).
  */
-export const API_BASE = API_BASES[0];
+async function fetchNodesFrom(base: string): Promise<readonly string[]> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), NODES_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${base}/nodes`, { cache: "no-store", signal: controller.signal });
+    if (!res.ok) throw new Error(`nodes discovery failed with status ${res.status}`);
+    const body = (await res.json()) as NodesResponse;
+    const online = (body.nodes ?? [])
+      .filter((n) => n.status === "online")
+      .map((n) => nodeBase(n.node_id));
+    if (online.length === 0) throw new Error("nodes discovery returned no online nodes");
+    return online;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Discovers the current set of online node base URLs by trying the
+ * bootstrap seed node(s) in order (see BOOTSTRAP_NODE_IDS) until one
+ * responds with a usable node list. Result is cached for
+ * NODES_CACHE_TTL_MS.
+ */
+async function discoverNodes(): Promise<readonly string[]> {
+  let lastError: unknown;
+  for (const seedId of BOOTSTRAP_NODE_IDS) {
+    try {
+      return await fetchNodesFrom(nodeBase(seedId));
+    } catch (err) {
+      lastError = err;
+      // Try the next well-known seed node.
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("node discovery failed");
+}
+
+/**
+ * Returns the current list of online backend bases, using the cache when
+ * fresh. When the domain-based discovery mode isn't configured
+ * (NEXT_PUBLIC_TEMPCDN_DOMAIN unset), returns the static env-configured
+ * bases instead and skips discovery entirely - this is what keeps local
+ * dev working unchanged.
+ *
+ * On cache miss, concurrent callers share a single in-flight discovery
+ * call rather than each firing their own /nodes request. If discovery
+ * fails and we have a (possibly stale) cached list, we fall back to it
+ * rather than failing outright - stale node info is still likely usable,
+ * and normal per-request failover handles any node that's since gone
+ * offline.
+ */
+async function getOnlineBases(): Promise<readonly string[]> {
+  if (!PRODUCTION_DOMAIN) return STATIC_BASES;
+
+  const now = Date.now();
+  if (cachedOnlineBases && now < cacheExpiresAt) return cachedOnlineBases;
+
+  if (!discoveryInFlight) {
+    discoveryInFlight = discoverNodes()
+      .then((bases) => {
+        cachedOnlineBases = bases;
+        cacheExpiresAt = Date.now() + NODES_CACHE_TTL_MS;
+        return bases;
+      })
+      .catch((err) => {
+        if (cachedOnlineBases) return cachedOnlineBases; // serve stale on failure
+        throw err;
+      })
+      .finally(() => {
+        discoveryInFlight = null;
+      });
+  }
+  return discoveryInFlight;
+}
+
+/**
+ * Public accessor for the current set of backend bases (discovered online
+ * nodes in domain mode, or the static env list otherwise), in the order
+ * they were last seen (not rotation order). Exposed so call sites like the
+ * docs page can display *a* representative base URL (e.g. for curl
+ * examples) and note when more than one server is in play, without making
+ * an actual load-balanced request.
+ */
+export async function getApiBases(): Promise<readonly string[]> {
+  return getOnlineBases();
+}
+
+/**
+ * Forces a fresh /nodes discovery call on next use, bypassing the cache.
+ * Useful after a run of failovers suggests the cached node list is stale.
+ */
+export function invalidateNodesCache(): void {
+  cachedOnlineBases = null;
+  cacheExpiresAt = 0;
+}
 
 /**
  * Module-level rotation cursor. Each call to nextBaseOrder() advances this
- * by one and returns all configured bases reordered to start from the next
- * one in sequence, so successive top-level requests (not retries within
- * the same request - see fetchWithFailover) are spread round-robin across
- * every configured server. Plain module state (not e.g. localStorage) is
+ * by one and returns all online bases reordered to start from the next one
+ * in sequence, so successive top-level requests (not retries within the
+ * same request - see fetchWithFailover) are spread round-robin across
+ * every online server. Plain module state (not e.g. localStorage) is
  * intentional: rotation only needs to be fair within one page session, and
  * resetting on reload is harmless.
  */
 let rotationCursor = 0;
-function nextBaseOrder(): readonly string[] {
-  const start = rotationCursor % API_BASES.length;
-  rotationCursor = (rotationCursor + 1) % API_BASES.length;
-  if (start === 0) return API_BASES;
-  return [...API_BASES.slice(start), ...API_BASES.slice(0, start)];
+function rotate(bases: readonly string[]): readonly string[] {
+  if (bases.length === 0) return bases;
+  const start = rotationCursor % bases.length;
+  rotationCursor = (rotationCursor + 1) % bases.length;
+  if (start === 0) return bases;
+  return [...bases.slice(start), ...bases.slice(0, start)];
+}
+
+async function nextBaseOrder(): Promise<readonly string[]> {
+  const bases = await getOnlineBases();
+  return rotate(bases);
 }
 
 export class TempCdnError extends Error {
@@ -136,8 +269,9 @@ async function fetchWithFailover(
   init: RequestInit = {},
   timeoutMs: number = DEFAULT_TIMEOUT_MS
 ): Promise<Response> {
-  const bases = nextBaseOrder();
+  const bases = await nextBaseOrder();
   let lastError: unknown;
+  let sawRetryableFailure = false;
 
   for (let i = 0; i < bases.length; i++) {
     const isLastAttempt = i === bases.length - 1;
@@ -146,17 +280,25 @@ async function fetchWithFailover(
       if (res.ok || !isRetryableStatus(res.status) || isLastAttempt) {
         return res;
       }
+      sawRetryableFailure = true;
       // Retryable (5xx) and another backend remains - try the next one.
     } catch (err) {
       lastError = err;
+      sawRetryableFailure = true;
       if (isLastAttempt) throw err;
       // Network error/timeout and another backend remains - try the next one.
     }
   }
 
-  // Unreachable in practice (API_BASES always has at least one entry, and
-  // the loop above always returns or throws on the last attempt), but
-  // keeps the function's return type honest for the type checker.
+  // A node we thought was online just failed - the cached node list is
+  // likely stale (node went offline since the last /nodes poll). Refresh
+  // it in the background so the *next* request gets an up-to-date set.
+  if (sawRetryableFailure) invalidateNodesCache();
+
+  // Unreachable in practice (bases always has at least one entry when
+  // discovery/static config succeeded, and the loop above always returns
+  // or throws on the last attempt), but keeps the function's return type
+  // honest for the type checker.
   throw lastError instanceof Error
     ? lastError
     : new TempCdnError("All backend servers are unreachable", 0);
@@ -233,11 +375,11 @@ export function uploadFile(
   file: File,
   onProgress: (percent: number) => void
 ): { promise: Promise<UploadedFile>; abort: () => void } {
-  const bases = nextBaseOrder();
   let currentXhr: XMLHttpRequest | null = null;
   let aborted = false;
 
   const promise = (async () => {
+    const bases = await nextBaseOrder();
     let lastError: unknown;
 
     for (let i = 0; i < bases.length; i++) {
@@ -327,7 +469,7 @@ export async function deleteFile(
 }
 
 export async function checkHealth(): Promise<{ status: string }> {
-  const bases = nextBaseOrder();
+  const bases = await nextBaseOrder();
   let lastError: unknown;
 
   for (let i = 0; i < bases.length; i++) {
@@ -383,4 +525,22 @@ export async function getTempCdnStats(): Promise<TempCdnStats> {
     uploadErrorsTotal: body?.lifetime_upload_errors_total ?? 0,
     generatedAt: body?.generated_at ?? ""
   };
+}
+
+/**
+ * Fetches the live cluster node list from GET /api/v1/nodes, for display
+ * purposes (e.g. an admin/status page showing which nodes are online).
+ * This goes through the normal failover machinery like any other read, so
+ * it also benefits from - and reports on - whichever node currently
+ * answers first.
+ *
+ * Not to be confused with the internal discovery machinery above (see
+ * discoverNodes/getOnlineBases), which calls the bootstrap seed node
+ * directly rather than going through fetchWithFailover, since it's what
+ * *builds* the list fetchWithFailover uses.
+ */
+export async function getNodes(): Promise<NodesResponse> {
+  const res = await fetchWithFailover("/nodes", { cache: "no-store" });
+  if (!res.ok) return parseError(res);
+  return res.json();
 }
