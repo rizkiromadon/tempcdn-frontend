@@ -234,7 +234,7 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
 
   it("rotates the starting base across successive calls", async () => {
     const api = await loadApiWithBases(bases.join(","));
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}));
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(jsonResponse({})));
     vi.stubGlobal("fetch", fetchMock);
 
     await api.getConfig();
@@ -291,7 +291,9 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
 
   it("throws the last error once every server has failed", async () => {
     const api = await loadApiWithBases(bases.join(","));
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ error: "down" }, 503));
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(jsonResponse({ error: "down" }, 503)));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(api.getConfig()).rejects.toMatchObject({ status: 503 });
@@ -392,7 +394,7 @@ describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
       .mockResolvedValueOnce(
         jsonResponse(nodesResponse([{ node_id: "srv1", status: "online" }]))
       )
-      .mockResolvedValue(jsonResponse({}));
+      .mockImplementation(() => Promise.resolve(jsonResponse({})));
     vi.stubGlobal("fetch", fetchMock);
 
     await api.getConfig();
@@ -409,7 +411,7 @@ describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
       { node_id: "srv1", status: "online" },
       { node_id: "srv2", status: "online" }
     ]);
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(payload)));
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(jsonResponse(payload))));
 
     const result = await api.getNodes();
 
