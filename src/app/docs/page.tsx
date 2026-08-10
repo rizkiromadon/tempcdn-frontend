@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { API_BASE } from "@/lib/api";
+import { API_BASE, API_BASES } from "@/lib/api";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
@@ -128,6 +128,12 @@ export default function DocsPage() {
           </code>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
             All endpoints below are relative to this base url.
+            {API_BASES.length > 1 && (
+              <>
+                {" "}Requests are load-balanced across {API_BASES.length} servers with
+                automatic failover; this is one of them.
+              </>
+            )}
           </p>
         </div>
       </section>

@@ -179,3 +179,113 @@ describe("deleteFile", () => {
     });
   });
 });
+
+describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
+  const bases = [
+    "https://srv1.tempcdn.eu.cc/api/v1",
+    "https://srv2.tempcdn.eu.cc/api/v1",
+    "https://srv3.tempcdn.eu.cc/api/v1"
+  ];
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  /**
+   * Env vars are read once at module load time (see the API_BASES IIFE in
+   * api.ts), so each test needs a fresh module instance after stubbing
+   * NEXT_PUBLIC_TEMPCDN_API_BASES - vi.resetModules() + a dynamic import
+   * achieves that without restructuring api.ts to accept bases as a
+   * parameter just for testability.
+   */
+  async function loadApiWithBases(basesCsv: string) {
+    vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASES", basesCsv);
+    vi.resetModules();
+    return import("./api");
+  }
+
+  it("parses the comma-separated env var, trimming whitespace and trailing slashes", async () => {
+    const api = await loadApiWithBases(" https://srv1.tempcdn.eu.cc/api/v1/ , https://srv2.tempcdn.eu.cc/api/v1 ");
+    expect(api.API_BASES).toEqual([
+      "https://srv1.tempcdn.eu.cc/api/v1",
+      "https://srv2.tempcdn.eu.cc/api/v1"
+    ]);
+    expect(api.API_BASE).toBe("https://srv1.tempcdn.eu.cc/api/v1");
+  });
+
+  it("rotates the starting base across successive calls", async () => {
+    const api = await loadApiWithBases(bases.join(","));
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await api.getConfig();
+    await api.getConfig();
+    await api.getConfig();
+    await api.getConfig();
+
+    const calledUrls = fetchMock.mock.calls.map(([url]) => url as string);
+    expect(calledUrls[0]).toContain("srv1.tempcdn.eu.cc");
+    expect(calledUrls[1]).toContain("srv2.tempcdn.eu.cc");
+    expect(calledUrls[2]).toContain("srv3.tempcdn.eu.cc");
+    // Wraps back around to the first server on the 4th call.
+    expect(calledUrls[3]).toContain("srv1.tempcdn.eu.cc");
+  });
+
+  it("fails over to the next server on a 500 response", async () => {
+    const api = await loadApiWithBases(bases.join(","));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ error: "boom" }, 500))
+      .mockResolvedValueOnce(jsonResponse({ max_upload_size_bytes: 1 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const config = await api.getConfig();
+
+    expect(config).toEqual({ max_upload_size_bytes: 1 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0][0]).toContain("srv1.tempcdn.eu.cc");
+    expect(fetchMock.mock.calls[1][0]).toContain("srv2.tempcdn.eu.cc");
+  });
+
+  it("fails over to the next server on a network error", async () => {
+    const api = await loadApiWithBases(bases.join(","));
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("network down"))
+      .mockResolvedValueOnce(jsonResponse({ max_upload_size_bytes: 1 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const config = await api.getConfig();
+
+    expect(config).toEqual({ max_upload_size_bytes: 1 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not fail over on a 4xx response - retrying wouldn't change the outcome", async () => {
+    const api = await loadApiWithBases(bases.join(","));
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ error: "invalid delete token" }, 403));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(api.deleteFile("abc123", "wrong-token")).rejects.toMatchObject({ status: 403 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws the last error once every server has failed", async () => {
+    const api = await loadApiWithBases(bases.join(","));
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ error: "down" }, 503));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(api.getConfig()).rejects.toMatchObject({ status: 503 });
+    expect(fetchMock).toHaveBeenCalledTimes(bases.length);
+  });
+
+  it("falls back to the single NEXT_PUBLIC_TEMPCDN_API_BASE when the multi-base var is unset", async () => {
+    vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASES", "");
+    vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASE", "https://solo.tempcdn.eu.cc/api/v1");
+    vi.resetModules();
+    const api = await import("./api");
+
+    expect(api.API_BASES).toEqual(["https://solo.tempcdn.eu.cc/api/v1"]);
+  });
+});
