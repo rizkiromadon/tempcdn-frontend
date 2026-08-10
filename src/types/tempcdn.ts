@@ -10,6 +10,15 @@ export interface UploadedFile {
   expires_at: string;
   duplicate?: boolean;
   expired?: boolean;
+  /**
+   * One-time secret returned only in the /upload response, used to
+   * authorize DELETE /api/v1/files/{id}. Never returned by GET
+   * /api/v1/files/{id} — if this is undefined (e.g. the file was loaded
+   * via lookup rather than just uploaded, or it predates the delete-token
+   * rollout), the file can no longer be deleted manually and will only
+   * disappear when its TTL expires.
+   */
+  delete_token?: string;
 }
 
 export interface ApiError {

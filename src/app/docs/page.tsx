@@ -296,8 +296,18 @@ export default function DocsPage() {
   "cdn_url": "https://cdn.tempcdn.example.com/2026/08/09/b6b3f6d2-....png",
   "created_at": "2026-08-09T10:15:00Z",
   "expires_at": "2026-08-10T10:15:00Z",
-  "duplicate": false
+  "duplicate": false,
+  "delete_token": "dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"
 }`}</CodeBlock>
+
+          <div className="rounded-xl border border-bloom/20 bg-bloom-soft px-4 py-3">
+            <p className="text-sm leading-relaxed text-ink-soft">
+              <code className="text-ink">delete_token</code> is only ever returned here, in the
+              upload response. Save it alongside the <code className="text-ink">id</code> — it&apos;s
+              required to delete this file later, and it cannot be retrieved again afterwards
+              (including from <code className="text-ink">GET /api/v1/files/{"{id}"}</code>).
+            </p>
+          </div>
 
           <div>
             <div className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-faint">
@@ -363,10 +373,29 @@ export default function DocsPage() {
 
         <Section id="file-delete" icon={Trash2} title="Delete a file" method="DELETE" path="/api/v1/files/{id}">
           <p className="text-sm leading-relaxed text-ink-soft">
-            Deletes a file before its TTL expires.
+            Deletes a file before its TTL expires. Requires the{" "}
+            <code className="text-ink">delete_token</code> issued in the original{" "}
+            <code className="text-ink">/upload</code> response — pass it as the{" "}
+            <code className="text-ink">X-Delete-Token</code> header, or as a{" "}
+            <code className="text-ink">delete_token</code> query parameter if setting a custom
+            header isn&apos;t practical for your client. Knowing the file&apos;s{" "}
+            <code className="text-ink">id</code> alone is no longer enough to delete it.
           </p>
 
-          <CodeBlock label="request">{`curl -X DELETE ${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11`}</CodeBlock>
+          <div className="rounded-xl border border-coral/20 bg-coral-soft px-4 py-3">
+            <p className="text-sm leading-relaxed text-ink-soft">
+              <strong className="text-ink">Breaking change:</strong> integrations that stored only
+              the file <code className="text-ink">id</code> and called DELETE without a token will
+              start getting <code className="text-ink">403 Forbidden</code>. Files uploaded before
+              this change also have no token on record and can no longer be deleted manually —
+              they&apos;re still removed automatically once their TTL expires.
+            </p>
+          </div>
+
+          <CodeBlock label="request (header)">{`curl -X DELETE ${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11 \\
+  -H "X-Delete-Token: dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"`}</CodeBlock>
+
+          <CodeBlock label="request (query param alternative)">{`curl -X DELETE "${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11?delete_token=dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"`}</CodeBlock>
 
           <CodeBlock label="200 OK">{`{ "deleted": true }`}</CodeBlock>
 
@@ -375,6 +404,12 @@ export default function DocsPage() {
               error responses
             </div>
             <div className="rounded-xl border border-line bg-paper px-4">
+              <StatusRow status="403" variant="danger">
+                Missing, invalid, or already-blank <code className="text-ink">X-Delete-Token</code>{" "}
+                / <code className="text-ink">delete_token</code>. This includes files that predate
+                delete-token support — they have no token to check against and can no longer be
+                deleted this way.
+              </StatusRow>
               <StatusRow status="404" variant="warning">
                 No file exists with the given ID.
               </StatusRow>

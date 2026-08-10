@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getTempCdnMetrics, getConfig, getFileInfo, TempCdnError } from "./api";
+import { getTempCdnMetrics, getConfig, getFileInfo, deleteFile, TempCdnError } from "./api";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -150,5 +150,41 @@ describe("getFileInfo 410 handling", () => {
     );
 
     await expect(getFileInfo("missing")).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+describe("deleteFile", () => {
+  it("sends the delete token as the X-Delete-Token header", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ deleted: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await deleteFile("abc123", "dt_secret");
+
+    expect(result).toEqual({ deleted: true });
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/files/abc123");
+    expect(init.method).toBe("DELETE");
+    expect(init.headers).toMatchObject({ "X-Delete-Token": "dt_secret" });
+  });
+
+  it("throws a 403 TempCdnError when the token is missing or invalid", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "invalid delete token" }, 403))
+    );
+
+    await expect(deleteFile("abc123", "wrong-token")).rejects.toMatchObject({
+      status: 403,
+      message: "invalid delete token"
+    });
+  });
+
+  it("falls back to a helpful message on 403 when the server sends no JSON body", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 403 })));
+
+    await expect(deleteFile("abc123", "wrong-token")).rejects.toMatchObject({
+      status: 403,
+      message: expect.stringContaining("delete token")
+    });
   });
 });

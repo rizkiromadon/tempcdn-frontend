@@ -12,8 +12,8 @@ export class TempCdnError extends Error {
   }
 }
 
-async function parseError(res: Response): Promise<never> {
-  let message = `Request failed with status ${res.status}`;
+async function parseError(res: Response, fallbackMessage?: string): Promise<never> {
+  let message = fallbackMessage ?? `Request failed with status ${res.status}`;
   try {
     const body = await res.json();
     if (body?.error) message = body.error;
@@ -122,12 +122,30 @@ export async function getFileInfo(id: string): Promise<UploadedFile> {
   return res.json();
 }
 
-export async function deleteFile(id: string): Promise<{ deleted: boolean }> {
+/**
+ * Deletes a file before its TTL expires.
+ *
+ * Requires the `delete_token` issued in the original /upload response —
+ * the API only accepts it via the `X-Delete-Token` header now, since a
+ * bare file id is guessable/shareable and previously let anyone who knew
+ * (or could enumerate) an id delete it. Callers without a token for this
+ * id (shared links, older entries saved before this field existed, or
+ * files uploaded before this rollout) should not call this at all; the
+ * server rejects those with 403 and there's no way to recover a missing
+ * token after the fact.
+ */
+export async function deleteFile(
+  id: string,
+  deleteToken: string
+): Promise<{ deleted: boolean }> {
   const res = await fetchWithTimeout(
     `${API_BASE}/files/${id}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: { "X-Delete-Token": deleteToken } },
     DELETE_TIMEOUT_MS
   );
+  if (res.status === 403) {
+    return parseError(res, "This link can no longer be deleted from here — the delete token is missing or invalid.");
+  }
   if (!res.ok) return parseError(res);
   return res.json();
 }

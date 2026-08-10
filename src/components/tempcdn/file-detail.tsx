@@ -7,7 +7,7 @@ import { FileCard } from "@/components/tempcdn/file-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getFileInfo, deleteFile, TempCdnError } from "@/lib/api";
-import { removeRecentEntry } from "@/lib/history";
+import { getRecentEntry, removeRecentEntry } from "@/lib/history";
 import type { UploadedFile } from "@/types/tempcdn";
 import { toast } from "sonner";
 
@@ -84,10 +84,18 @@ export function FileDetail({ id }: FileDetailProps) {
     };
   }, [id, attempt]);
 
+  // The API only returns delete_token once, in the /upload response — a
+  // GET here never includes it. So the only place we can still have it is
+  // this browser's local upload history, keyed by id. If it's missing
+  // (shared link, different device, or uploaded before this rollout),
+  // deletion is simply no longer possible for this file.
+  const deleteToken = getRecentEntry(id)?.delete_token;
+
   async function handleDelete(fileId: string) {
+    if (!deleteToken) return;
     setDeleting(true);
     try {
-      await deleteFile(fileId);
+      await deleteFile(fileId, deleteToken);
       removeRecentEntry(fileId);
       toast.success("File deleted");
       router.push("/");
@@ -139,7 +147,16 @@ export function FileDetail({ id }: FileDetailProps) {
       )}
 
       {state.kind === "loaded" && (
-        <FileCard file={state.file} onDelete={handleDelete} deleting={deleting} />
+        <FileCard
+          file={state.file}
+          onDelete={deleteToken ? handleDelete : undefined}
+          deleting={deleting}
+          deleteUnavailableReason={
+            !deleteToken
+              ? "Deletion is only available in the browser tab that uploaded this file."
+              : undefined
+          }
+        />
       )}
     </div>
   );

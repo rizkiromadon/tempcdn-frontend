@@ -16,6 +16,12 @@ interface FileCardProps {
   file: UploadedFile;
   onDelete?: (id: string) => void;
   deleting?: boolean;
+  /**
+   * When delete isn't possible (no local delete token for this file),
+   * show this instead of the delete button so it reads as "not available
+   * here" rather than the button silently disappearing.
+   */
+  deleteUnavailableReason?: string;
 }
 
 function MetaRow({
@@ -58,7 +64,7 @@ function MetaRow({
   );
 }
 
-export function FileCard({ file, onDelete, deleting }: FileCardProps) {
+export function FileCard({ file, onDelete, deleting, deleteUnavailableReason }: FileCardProps) {
   const isExpired = file.expired ?? false;
 
   function copyValue(value: string, label: string) {
@@ -133,6 +139,10 @@ export function FileCard({ file, onDelete, deleting }: FileCardProps) {
               {deleting ? "deleting..." : "delete now"}
             </Button>
           </div>
+        )}
+
+        {!onDelete && !isExpired && deleteUnavailableReason && (
+          <p className="pt-1 text-right text-xs text-ink-faint">{deleteUnavailableReason}</p>
         )}
       </CardContent>
     </Card>
