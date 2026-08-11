@@ -20,50 +20,50 @@ interface Advantage {
 const advantages: Advantage[] = [
   {
     icon: InfinityIcon,
-    title: "Free, no catch",
-    body: "No tiers, no trial, no card on file. TempCDN stays free forever — the same service for a one-off share or a CI pipeline.",
+    title: "Actually free",
+    body: "There's no paid tier waiting behind a feature flag. Upload as much as you want, whenever you want.",
     accent: "sage"
   },
   {
     icon: Timer,
-    title: "Self-cleaning by design",
-    body: "Every upload carries its own expiry. Nothing to schedule, nothing to remember to delete later.",
+    title: "Cleans up after itself",
+    body: "Set the expiry when you upload and forget about it — the file is gone on its own once the timer's up.",
     accent: "bloom"
   },
   {
     icon: ShieldOff,
-    title: "Zero accounts",
-    body: "No sign-up, no login, no session to lose. Open the page, drop a file, get a link.",
+    title: "Skip the sign-up",
+    body: "You don't need an account to use this. Open the page, drop a file, get a link back.",
     accent: "coral"
   },
   {
     icon: Terminal,
-    title: "Built for the terminal",
-    body: "A plain REST API with no auth headers or API keys — pipe a build artifact out with a single curl -F.",
+    title: "Scriptable from the start",
+    body: "curl -F file=@yourfile.zip and you're done. No API key to generate, no auth header to figure out.",
     accent: "amber"
   },
   {
     icon: Fingerprint,
-    title: "Checksum deduplication",
-    body: "Content is fingerprinted with SHA-256 before storage, so the same file is never written twice.",
+    title: "Won't store duplicates",
+    body: "Files are hashed with SHA-256 on the way in, so uploading the same thing twice doesn't cost extra storage.",
     accent: "bloom"
   },
   {
     icon: ServerCog,
-    title: "Multi-node failover",
-    body: "Requests round-robin across every healthy node and retry elsewhere automatically if one has a bad moment.",
+    title: "More than one server",
+    body: "Traffic spreads across a small pool of nodes, so a single server having a rough day doesn't take the whole thing down.",
     accent: "sage"
   },
   {
     icon: Zap,
-    title: "Instant links",
-    body: "A direct CDN URL comes back the moment the upload finishes — ready to paste into a chat, ticket, or script.",
+    title: "Link's ready right away",
+    body: "As soon as the upload finishes you get a URL back — drop it in Slack, a ticket, wherever it needs to go.",
     accent: "amber"
   },
   {
     icon: Link2,
-    title: "Shareable by nature",
-    body: "One link, no permissions to configure. Anyone holding it can view or download until the timer runs out.",
+    title: "No link settings to fuss with",
+    body: "There's no visibility toggle or access list — if someone has the link, it works, until it expires.",
     accent: "coral"
   }
 ];

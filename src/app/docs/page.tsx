@@ -131,15 +131,42 @@ export default async function DocsPage() {
           </code>
           <p className="mt-3 text-sm leading-relaxed text-ink-faint">
             All endpoints below are relative to this base url.
-            {bases.length > 1 && (
+            {bases.length > 1 ? (
               <>
-                {" "}Requests are load-balanced across {bases.length} servers with
-                automatic failover; this is one of them.
+                {" "}This is one of {bases.length} nodes currently online. The
+                frontend rotates requests across all of them and retries the
+                next node on a timeout or 5xx, so you can call any node in
+                the list — you don&apos;t need to pin to this specific one.
+              </>
+            ) : (
+              <>
+                {" "}Only one node is currently configured or reachable, so
+                there&apos;s nothing to round-robin against right now.
               </>
             )}
           </p>
         </div>
       </section>
+
+      {bases.length > 1 && (
+        <section className="mb-14 rounded-xl border border-line bg-paper-sunk p-5">
+          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
+            all online nodes
+          </div>
+          <ul className="space-y-1.5">
+            {bases.map((base) => (
+              <li key={base} className="font-mono text-xs text-ink-soft">
+                {base}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-sm leading-relaxed text-ink-faint">
+            Any of these will work for every endpoint on this page. If one is
+            unreachable, retry against another — there&apos;s no session or
+            sticky routing tying a request to a particular node.
+          </p>
+        </section>
+      )}
 
       {/* On-page nav */}
       <nav className="mb-14 flex flex-wrap gap-2">

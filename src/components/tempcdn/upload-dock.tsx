@@ -76,23 +76,11 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel, acceptedMimeTypes 
             {isDragActive ? "Let go to upload" : "Drop files here"}
           </p>
           <p className="text-sm text-ink-soft">
-            or click to browse. Every file fades away after its lifespan.
+            or click to browse
           </p>
           <p className="text-xs text-ink-faint">
             {maxSizeLabel ?? "checking upload limits..."} · multiple files supported
           </p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
-            no login
-          </span>
-          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
-            auto-expires
-          </span>
-          <span className="rounded-full border border-line bg-paper-sunk px-2.5 py-1 text-[11px] text-ink-soft">
-            dedup by checksum
-          </span>
         </div>
       </div>
     </div>

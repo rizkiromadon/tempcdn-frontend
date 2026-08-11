@@ -3,8 +3,11 @@ import { LiveStats } from "@/components/tempcdn/live-stats";
 import { AdvantageBelt } from "@/components/tempcdn/advantage-belt";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal, Infinity as InfinityIcon, Radio } from "lucide-react";
+import { getApiBases } from "@/lib/api";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const bases = await getApiBases();
+  const uploadUrl = `${bases[0]}/upload`;
   return (
     <div>
       {/* Hero */}
@@ -21,11 +24,10 @@ export default function HomePage() {
             <span className="text-bloom-strong">They don&apos;t stay.</span>
           </h1>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-soft">
-            TempCDN is a simple file-sharing waypoint: drop a file, get a
-            direct link, share it anywhere. Every upload quietly expires on
-            its own timer — built for a quick share between people, and
-            just as much for scripts, CI jobs, and anything else that needs
-            a place to hand a file off.
+            Drop a file, get a link, share it. TempCDN deletes the upload
+            automatically once its timer runs out, so you don&apos;t have
+            to remember to clean up after yourself. Works fine from a
+            browser tab, and just as well from a curl command in a CI job.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -55,9 +57,9 @@ export default function HomePage() {
             </div>
             <pre className="overflow-x-auto p-4 text-[12.5px] leading-relaxed text-white/80">
               <code>
-                <span className="text-white/40"># upload a build artifact from the command line</span>
+                <span className="text-white/40"># any node in the pool works — requests round-robin automatically</span>
                 {"\n"}
-                curl -F file=@release.tar.gz https://tempcdn.example.com/api/v1/upload
+                curl -F file=@release.tar.gz {uploadUrl}
               </code>
             </pre>
           </div>
@@ -68,11 +70,11 @@ export default function HomePage() {
       <section className="mb-16 sm:mb-20">
         <div className="mx-auto max-w-5xl px-5">
           <h2 className="mb-1 font-display text-xl font-bold text-ink sm:text-2xl">
-            Why people reach for TempCDN
+            What you get
           </h2>
           <p className="mb-6 max-w-lg text-sm leading-relaxed text-ink-soft">
-            The same handful of reasons show up whether it&apos;s a design
-            file for a client or an artifact coming out of a build server.
+            Nothing fancy — just the parts that matter when you need to
+            hand a file off and move on.
           </p>
         </div>
         <AdvantageBelt />
@@ -86,11 +88,11 @@ export default function HomePage() {
             <span className="relative inline-flex h-2 w-2 rounded-full bg-sage" />
           </span>
           <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            Network activity
+            What&apos;s happening on the network
           </h2>
           <span className="inline-flex items-center gap-1 text-[11px] text-ink-faint">
             <Radio className="h-3 w-3" strokeWidth={2} />
-            updates every 15s
+            refreshes on its own
           </span>
         </div>
         <LiveStats />
