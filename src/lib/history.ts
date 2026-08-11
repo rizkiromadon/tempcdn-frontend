@@ -3,7 +3,7 @@
 import type { UploadedFile } from "@/types/tempcdn";
 
 const STORAGE_KEY = "tempcdn.recent";
-const MAX_ENTRIES = 12;
+const MAX_ENTRIES = 200;
 
 export interface RecentEntry {
   id: string;

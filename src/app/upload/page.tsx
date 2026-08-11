@@ -26,11 +26,9 @@ export default function UploadPage() {
       </section>
 
       <section className="mb-14 border-t border-line pt-10">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-            recent uploads on this device
-          </h2>
-        </div>
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          recent uploads on this device
+        </h2>
         <RecentDrops />
       </section>
 
