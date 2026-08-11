@@ -3,7 +3,9 @@ import type {
   TempCdnConfig,
   NodesResponse,
   AdminLoginResponse,
-  AdminMeResponse
+  AdminMeResponse,
+  ApiKey,
+  CreateApiKeyResponse
 } from "@/types/tempcdn";
 
 /**
@@ -609,4 +611,47 @@ export async function adminMe(token: string): Promise<AdminMeResponse> {
   });
   if (!res.ok) return parseError(res);
   return res.json();
+}
+
+/**
+ * Creates a new API key via POST /api/v1/admin/api-keys. The plaintext
+ * `key` field in the response is only ever returned here - it can't be
+ * retrieved again afterward, so callers must show/copy it immediately and
+ * are responsible for not silently discarding it.
+ */
+export async function createApiKey(token: string, name: string): Promise<CreateApiKeyResponse> {
+  const res = await fetchWithFailover("/admin/api-keys", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name })
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+/**
+ * Lists every API key (active and revoked) via GET /api/v1/admin/api-keys,
+ * most recently created first. Never includes the plaintext key.
+ */
+export async function listApiKeys(token: string): Promise<ApiKey[]> {
+  const res = await fetchWithFailover("/admin/api-keys", {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+/**
+ * Revokes a single API key via DELETE /api/v1/admin/api-keys/{id}.
+ * Idempotent on the backend - revoking an already-revoked or unknown id
+ * still returns 200 - so callers don't need special-case handling for
+ * "already revoked".
+ */
+export async function revokeApiKey(token: string, id: string): Promise<void> {
+  const res = await fetchWithFailover(`/admin/api-keys/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return parseError(res);
 }

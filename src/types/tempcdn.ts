@@ -71,6 +71,28 @@ export interface AdminMeResponse {
 }
 
 /**
+ * A single API key as returned by GET /api/v1/admin/api-keys (or, on
+ * creation, embedded in CreateApiKeyResponse). The plaintext key itself is
+ * never included here - only in CreateApiKeyResponse, once, right after
+ * creation.
+ */
+export interface ApiKey {
+  id: string;
+  name: string;
+  created_at: string;
+  last_used_at?: string;
+  revoked_at?: string;
+}
+
+/** Response body from POST /api/v1/admin/api-keys. */
+export interface CreateApiKeyResponse {
+  id: string;
+  name: string;
+  key: string;
+  created_at: string;
+}
+
+/**
  * Admin session persisted in this browser (see lib/admin-auth.ts). Mirrors
  * AdminLoginResponse but named separately since this is our stored shape,
  * not necessarily identical to whatever the API returns in the future.
