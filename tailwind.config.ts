@@ -81,13 +81,28 @@ const config: Config = {
         "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" }
+        },
+        "conveyor-x": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" }
+        },
+        "dash-flow": {
+          "0%": { backgroundPosition: "0 0" },
+          "100%": { backgroundPosition: "-48px 0" }
+        },
+        "count-in": {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" }
         }
       },
       animation: {
         "pulse-slow": "pulse-slow 2.4s ease-in-out infinite",
         breathe: "breathe 3s ease-in-out infinite",
         "fade-up": "fade-up 0.4s cubic-bezier(0.16,1,0.3,1)",
-        "fade-in": "fade-in 0.3s ease-out"
+        "fade-in": "fade-in 0.3s ease-out",
+        "conveyor-x": "conveyor-x 32s linear infinite",
+        "dash-flow": "dash-flow 1.1s linear infinite",
+        "count-in": "count-in 0.5s cubic-bezier(0.16,1,0.3,1)"
       }
     }
   },

@@ -68,3 +68,10 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-conveyor-x {
+    animation: none !important;
+    overflow-x: auto;
+  }
+}
+

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/tempcdn/site-header";
+import { SiteFooter } from "@/components/tempcdn/site-footer";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
@@ -23,9 +24,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const SITE_TITLE = "TempCDN — files that pass through";
+const SITE_TITLE = "TempCDN — simple file sharing, free forever";
 const SITE_DESCRIPTION =
-  "Anonymous file sharing with automatic expiry. No login, nothing left behind.";
+  "Drop a file, get a link, share it. No accounts, automatic expiry, and a plain REST API for developers. Free forever.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -51,9 +52,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen font-sans">
+      <body className="flex min-h-screen flex-col font-sans">
         <SiteHeader />
-        <main className="relative z-0">{children}</main>
+        <main className="relative z-0 flex-1">{children}</main>
+        <SiteFooter />
         <Toaster />
       </body>
     </html>
