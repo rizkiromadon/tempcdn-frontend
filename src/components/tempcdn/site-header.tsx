@@ -24,7 +24,7 @@ export function SiteHeader() {
             </span>
           </div>
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-6" aria-label="Primary">
           <Link
             href="/upload"
             className="rounded-md text-sm text-ink-soft transition-colors duration-200 hover:text-bloom-strong focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"

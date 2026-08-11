@@ -57,8 +57,8 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          <nav aria-labelledby="footer-product-heading">
+            <h3 id="footer-product-heading" className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
               Product
             </h3>
             <ul className="space-y-2.5">
@@ -73,10 +73,10 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          <nav aria-labelledby="footer-developers-heading">
+            <h3 id="footer-developers-heading" className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
               For developers
             </h3>
             <ul className="space-y-2.5">
@@ -91,10 +91,10 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          <nav aria-labelledby="footer-project-heading">
+            <h3 id="footer-project-heading" className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-faint">
               Project
             </h3>
             <ul className="space-y-2.5">
@@ -109,7 +109,7 @@ export function SiteFooter() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">

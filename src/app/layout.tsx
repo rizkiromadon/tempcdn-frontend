@@ -107,17 +107,37 @@ export const metadata: Metadata = {
 
 const JSON_LD = {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "TempCDN",
-  url: SITE_URL,
-  description: SITE_DESCRIPTION,
-  applicationCategory: "UtilitiesApplication",
-  operatingSystem: "Any",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD"
-  }
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": `${SITE_URL}/#webapp`,
+      name: "TempCDN",
+      url: SITE_URL,
+      description: SITE_DESCRIPTION,
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      name: "TempCDN",
+      url: SITE_URL,
+      description: SITE_DESCRIPTION,
+      inLanguage: "en-US"
+    },
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "TempCDN",
+      url: SITE_URL,
+      logo: `${SITE_URL}/icons/icon-512.png`
+    }
+  ]
 };
 
 export default function RootLayout({
@@ -136,8 +156,16 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col font-sans">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/40"
+        >
+          Skip to main content
+        </a>
         <SiteHeader />
-        <main className="relative z-0 flex-1">{children}</main>
+        <main id="main-content" className="relative z-0 flex-1">
+          {children}
+        </main>
         <SiteFooter />
         <Toaster />
       </body>

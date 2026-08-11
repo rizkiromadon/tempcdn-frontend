@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LiveStats } from "@/components/tempcdn/live-stats";
 import { AdvantageBelt } from "@/components/tempcdn/advantage-belt";
+import { FaqSection } from "@/components/tempcdn/faq-section";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal, Infinity as InfinityIcon, Radio } from "lucide-react";
 import { getApiBases } from "@/lib/api";
@@ -81,7 +82,7 @@ export default async function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="mx-auto max-w-5xl border-t border-line px-5 pt-10 pb-24">
+      <section className="mx-auto max-w-5xl border-t border-line px-5 py-10">
         <div className="mb-5 flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sage opacity-60" />
@@ -97,6 +98,9 @@ export default async function HomePage() {
         </div>
         <LiveStats />
       </section>
+
+      {/* FAQ */}
+      <FaqSection />
     </div>
   );
 }

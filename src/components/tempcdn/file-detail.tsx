@@ -144,12 +144,17 @@ export function FileDetail({ id }: FileDetailProps) {
         back
       </Button>
 
-      {state.kind === "loading" && <DetailSkeleton />}
+      {state.kind === "loading" && (
+        <>
+          <h1 className="sr-only">Loading file details</h1>
+          <DetailSkeleton />
+        </>
+      )}
 
       {state.kind === "not-found" && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line py-20 text-center animate-fade-up">
           <AlertTriangle className="h-6 w-6 text-coral" />
-          <p className="text-sm font-semibold text-ink">no file found</p>
+          <h1 className="text-sm font-semibold text-ink">no file found</h1>
           <p className="max-w-xs text-sm text-ink-soft">
             nothing matches id{" "}
             <span className="font-mono text-ink">{id}</span>. it may have never
@@ -164,7 +169,7 @@ export function FileDetail({ id }: FileDetailProps) {
       {state.kind === "error" && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-coral/30 py-20 text-center animate-fade-up">
           <AlertTriangle className="h-6 w-6 text-coral" />
-          <p className="text-sm font-semibold text-ink">lookup failed</p>
+          <h1 className="text-sm font-semibold text-ink">lookup failed</h1>
           <p className="max-w-xs text-sm text-ink-soft">{state.message}</p>
           <Button
             variant="secondary"

@@ -83,9 +83,12 @@ export function FileCard({ file, onDelete, deleting, deleteUnavailableReason }: 
             className="h-11 w-11 shrink-0 rounded-lg"
           />
           <div className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-ink" title={file.original_name}>
+            <h1
+              className="block truncate text-sm font-semibold text-ink"
+              title={file.original_name}
+            >
               {file.original_name}
-            </span>
+            </h1>
             <span className="block truncate font-mono text-[11px] text-ink-faint">
               {truncateMiddle(file.id, 10, 6)}
             </span>

@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: "Page not found — TempCDN",
+  description: "The page you're looking for doesn't exist or may have moved.",
+  robots: { index: false, follow: true }
+};
 
 export default function NotFound() {
   return (

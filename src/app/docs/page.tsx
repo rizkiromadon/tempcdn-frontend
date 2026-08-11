@@ -6,7 +6,10 @@ import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
 const TITLE = "API Docs — TempCDN";
-const DESCRIPTION = "Endpoint reference for the TempCDN upload API.";
+const DESCRIPTION =
+  "Endpoint reference for the TempCDN upload API: upload config, file upload, file lookup, and file deletion. No API key required.";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -23,6 +26,15 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION
   }
+};
+
+const BREADCRUMB_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "API Docs", item: `${SITE_URL}/docs` }
+  ]
 };
 
 type HttpMethod = "GET" | "POST" | "DELETE";
@@ -123,6 +135,24 @@ export default async function DocsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-14 sm:pt-20">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
+      />
+      <nav aria-label="Breadcrumb" className="mb-6">
+        <ol className="flex items-center gap-1.5 text-xs text-ink-faint">
+          <li>
+            <Link href="/" className="transition-colors duration-200 hover:text-bloom-strong">
+              Home
+            </Link>
+          </li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" className="text-ink-soft">
+            API Docs
+          </li>
+        </ol>
+      </nav>
       <section className="mb-12 space-y-4 sm:mb-14">
         <div className="flex items-center gap-2 text-bloom-strong">
           <Terminal className="h-4 w-4" strokeWidth={2} />
@@ -184,7 +214,7 @@ export default async function DocsPage() {
       )}
 
       {/* On-page nav */}
-      <nav className="mb-14 flex flex-wrap gap-2">
+      <nav aria-label="Documentation sections" className="mb-14 flex flex-wrap gap-2">
         {nav.map((item) => (
           <Link
             key={item.id}
