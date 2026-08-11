@@ -9,7 +9,7 @@ import { formatBytes, truncateMiddle, msUntil, formatCountdown } from "@/lib/uti
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 function RecentEntryRow({ entry }: { entry: RecentEntry }) {
   const [remaining, setRemaining] = useState(() => msUntil(entry.expires_at));
