@@ -57,3 +57,26 @@ export interface UploadTask {
   result?: UploadedFile;
   error?: string;
 }
+
+/** Response body from POST /api/v1/admin/login. */
+export interface AdminLoginResponse {
+  token: string;
+  username: string;
+  expires_at: string;
+}
+
+/** Response body from GET /api/v1/admin/me. */
+export interface AdminMeResponse {
+  username: string;
+}
+
+/**
+ * Admin session persisted in this browser (see lib/admin-auth.ts). Mirrors
+ * AdminLoginResponse but named separately since this is our stored shape,
+ * not necessarily identical to whatever the API returns in the future.
+ */
+export interface AdminSession {
+  token: string;
+  username: string;
+  expiresAt: string;
+}

@@ -1,4 +1,10 @@
-import type { UploadedFile, TempCdnConfig, NodesResponse } from "@/types/tempcdn";
+import type {
+  UploadedFile,
+  TempCdnConfig,
+  NodesResponse,
+  AdminLoginResponse,
+  AdminMeResponse
+} from "@/types/tempcdn";
 
 /**
  * Dynamic node discovery + round-robin + failover across multiple backend
@@ -541,6 +547,66 @@ export async function getTempCdnStats(): Promise<TempCdnStats> {
  */
 export async function getNodes(): Promise<NodesResponse> {
   const res = await fetchWithFailover("/nodes", { cache: "no-store" });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+/**
+ * Logs in to the admin dashboard API via POST /api/v1/admin/login. Not
+ * authenticated itself (that's the point), so no Authorization header is
+ * sent. On success the caller is responsible for persisting the returned
+ * token (see lib/admin-auth.ts) — this function only performs the request.
+ *
+ * A 401 here (wrong username/password) is a normal, expected outcome for
+ * this endpoint, not a backend failure — callers should catch
+ * TempCdnError and show it as a form validation message rather than a
+ * generic "something went wrong" toast.
+ */
+export async function adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
+  const res = await fetchWithFailover("/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  if (res.status === 401) {
+    return parseError(res, "Invalid username or password.");
+  }
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+/**
+ * Revokes the given session token via POST /api/v1/admin/logout. Logout is
+ * idempotent on the backend (revoking an already-invalid/expired/unknown
+ * token still returns 200), so this never needs special-case error
+ * handling for "already logged out" — callers should clear their local
+ * session (see lib/admin-auth.ts clearAdminSession) regardless of whether
+ * this call succeeds, since the goal is "stop being logged in here" and
+ * the local half of that is unconditional.
+ */
+export async function adminLogout(token: string): Promise<void> {
+  const res = await fetchWithFailover("/admin/logout", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) return parseError(res);
+}
+
+/**
+ * Verifies a stored session token is still valid and fetches the current
+ * admin's identity via GET /api/v1/admin/me. Used on dashboard load to
+ * confirm a token pulled from localStorage hasn't expired or been revoked
+ * server-side (e.g. logged out from another device) before trusting it.
+ *
+ * A 401 here means the token is missing/invalid/expired — callers should
+ * treat this the same as "not logged in" (clear the local session and
+ * redirect to login), not as a transient error to retry.
+ */
+export async function adminMe(token: string): Promise<AdminMeResponse> {
+  const res = await fetchWithFailover("/admin/me", {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
   if (!res.ok) return parseError(res);
   return res.json();
 }
