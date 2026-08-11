@@ -24,9 +24,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const SITE_TITLE = "TempCDN — simple file sharing, free forever";
+const SITE_TITLE = "TempCDN — Free Temporary File Sharing & Upload API, No Signup";
 const SITE_DESCRIPTION =
-  "Drop a file, get a link, share it. No accounts, automatic expiry, and a plain REST API for developers. Free forever.";
+  "Upload a file, get a self-destructing link, and share it instantly. No account required, automatic expiry, and a simple REST API for developers. 100% free, forever.";
 const SITE_KEYWORDS = [
   "temporary file sharing",
   "anonymous file upload",

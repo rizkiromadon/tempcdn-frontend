@@ -20,15 +20,16 @@ export default async function HomePage() {
           </div>
 
           <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight text-ink sm:text-5xl">
-            Files pass through.
+            Free temporary file sharing.
             <br />
-            <span className="text-bloom-strong">They don&apos;t stay.</span>
+            <span className="text-bloom-strong">Files pass through, they don&apos;t stay.</span>
           </h1>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-ink-soft">
-            Drop a file, get a link, share it. TempCDN deletes the upload
-            automatically once its timer runs out, so you don&apos;t have
-            to remember to clean up after yourself. Works fine from a
-            browser tab, and just as well from a curl command in a CI job.
+            Drop a file, get a self-destructing share link, and send it on.
+            TempCDN is an anonymous file upload service — no account, no
+            sign-up — that deletes every upload automatically once its
+            expiry timer runs out. Works fine from a browser tab, and just
+            as well from a curl command in a CI job.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -71,7 +72,7 @@ export default async function HomePage() {
       <section className="mb-16 sm:mb-20">
         <div className="mx-auto max-w-5xl px-5">
           <h2 className="mb-1 font-display text-xl font-bold text-ink sm:text-2xl">
-            What you get
+            Why use TempCDN for temporary file sharing
           </h2>
           <p className="mb-6 max-w-lg text-sm leading-relaxed text-ink-soft">
             Nothing fancy — just the parts that matter when you need to
@@ -79,6 +80,52 @@ export default async function HomePage() {
           </p>
         </div>
         <AdvantageBelt />
+      </section>
+
+      {/* About / how it works — expands on-page text content and keyword coverage */}
+      <section className="mx-auto max-w-5xl border-t border-line px-5 py-14 sm:py-16">
+        <h2 className="mb-4 font-display text-xl font-bold text-ink sm:text-2xl">
+          How TempCDN&apos;s free file upload service works
+        </h2>
+        <div className="grid gap-8 sm:grid-cols-2">
+          <div className="space-y-3 text-sm leading-relaxed text-ink-soft">
+            <p>
+              TempCDN is a free, anonymous file upload and temporary file
+              sharing tool built for people who need to hand off a file
+              without the overhead of an account. Drag a file onto the
+              upload page, or send it straight from the command line with a
+              single <code className="text-ink">curl</code> request — either
+              way, the response comes back with a direct download link
+              you can paste into a chat, a ticket, or a script.
+            </p>
+            <p>
+              Every file you upload gets a self-destructing link: once its
+              expiry timer runs out, both the file and its metadata are
+              permanently deleted from storage. There&apos;s no dashboard to
+              remember to clean up, no manual delete step required, and
+              nothing left behind once the countdown hits zero.
+            </p>
+          </div>
+          <div className="space-y-3 text-sm leading-relaxed text-ink-soft">
+            <p>
+              Because it&apos;s built around a plain REST API rather than a
+              proprietary SDK, TempCDN works equally well as a one-off file
+              hosting link for a friend or as an automated upload target
+              inside a CI/CD pipeline, backup script, or internal tool.
+              There&apos;s no API key to provision and no rate-limited free
+              tier waiting to interrupt a build — the API upload endpoint
+              is documented in full on the <Link href="/docs" className="text-bloom-strong underline-offset-2 hover:underline">API docs page</Link>.
+            </p>
+            <p>
+              Uploads are also deduplicated by SHA-256 checksum, so
+              re-uploading the same file doesn&apos;t use extra storage, and
+              traffic is spread across multiple nodes so a single server
+              having a rough day doesn&apos;t take the whole service down.
+              It&apos;s a small tool, kept intentionally simple, and free
+              for as long as it exists.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Stats */}

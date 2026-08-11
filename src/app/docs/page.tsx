@@ -5,9 +5,9 @@ import { getApiBases } from "@/lib/api";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
-const TITLE = "API Docs — TempCDN";
+const TITLE = "File Upload API Docs — Free REST API, No API Key | TempCDN";
 const DESCRIPTION =
-  "Endpoint reference for the TempCDN upload API: upload config, file upload, file lookup, and file deletion. No API key required.";
+  "Full reference for the TempCDN file upload API: upload config, POST /upload, file lookup, and delete endpoints. Free, no authentication, no API key needed.";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -161,11 +161,12 @@ export default async function DocsPage() {
           </span>
         </div>
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight text-ink sm:text-5xl">
-          API docs
+          File upload API docs
         </h1>
         <p className="max-w-lg text-base leading-relaxed text-ink-soft">
           Everything you need to upload, look up, and delete files through the
-          TempCDN API. No authentication, no API keys — just a base URL.
+          free TempCDN REST API. No authentication, no API keys — just a
+          base URL and standard HTTP requests.
         </p>
         <div className="max-w-lg rounded-xl border border-line bg-paper p-5 shadow-soft">
           <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
