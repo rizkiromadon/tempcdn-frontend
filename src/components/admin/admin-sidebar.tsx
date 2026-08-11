@@ -3,12 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Gauge } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminSidebar } from "@/lib/use-admin-sidebar";
 
 const NAV_ITEMS = [
-  { href: "/dashboard/overview", label: "Overview", icon: Gauge },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }
 ] as const;
 
