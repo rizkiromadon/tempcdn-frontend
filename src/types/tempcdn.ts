@@ -93,6 +93,35 @@ export interface CreateApiKeyResponse {
 }
 
 /**
+ * Runtime-configurable upload limits, as returned by
+ * GET /api/v1/admin/upload-settings and accepted by
+ * PUT /api/v1/admin/upload-settings. Unlike TempCdnConfig (the public,
+ * read-only /api/v1/config mirror of these same values), this shape
+ * includes the audit fields (updated_at/updated_by) only visible to an
+ * authenticated admin.
+ */
+export interface UploadSettings {
+  max_upload_size_mb: number;
+  allowed_mime_types: string[];
+  blocked_extensions: string[];
+  updated_at: string;
+  /**
+   * Admin ID who last changed these settings via PUT. Omitted if the row
+   * still holds its original boot-time seed (from SERVER_MAX_UPLOAD_MB /
+   * ALLOWED_MIME_TYPES / BLOCKED_EXTENSIONS) and has never been changed
+   * since.
+   */
+  updated_by?: string;
+}
+
+/** Request body for PUT /api/v1/admin/upload-settings. All fields required — see UploadSettings. */
+export interface UpdateUploadSettingsRequest {
+  max_upload_size_mb: number;
+  allowed_mime_types: string[];
+  blocked_extensions: string[];
+}
+
+/**
  * Admin session persisted in this browser (see lib/admin-auth.ts). Mirrors
  * AdminLoginResponse but named separately since this is our stored shape,
  * not necessarily identical to whatever the API returns in the future.

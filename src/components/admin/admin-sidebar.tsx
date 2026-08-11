@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, KeyRound } from "lucide-react";
+import { LayoutDashboard, KeyRound, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminSidebar } from "@/lib/use-admin-sidebar";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/api-keys", label: "API Keys", icon: KeyRound }
+  { href: "/dashboard/api-keys", label: "API Keys", icon: KeyRound },
+  { href: "/dashboard/upload-settings", label: "Upload Settings", icon: SlidersHorizontal }
 ] as const;
 
 /**

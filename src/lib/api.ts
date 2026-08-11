@@ -5,7 +5,9 @@ import type {
   AdminLoginResponse,
   AdminMeResponse,
   ApiKey,
-  CreateApiKeyResponse
+  CreateApiKeyResponse,
+  UploadSettings,
+  UpdateUploadSettingsRequest
 } from "@/types/tempcdn";
 
 /**
@@ -654,4 +656,48 @@ export async function revokeApiKey(token: string, id: string): Promise<void> {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) return parseError(res);
+}
+
+/**
+ * Fetches the current runtime-configurable upload limits (max size,
+ * allowed MIME types, blocked extensions) via
+ * GET /api/v1/admin/upload-settings, for the settings page's edit form.
+ * Unlike getConfig() (the public, read-only mirror of the same values),
+ * this requires an admin session and includes the updated_at/updated_by
+ * audit fields.
+ */
+export async function getUploadSettings(token: string): Promise<UploadSettings> {
+  const res = await fetchWithFailover("/admin/upload-settings", {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+/**
+ * Persists new upload limits via PUT /api/v1/admin/upload-settings, taking
+ * effect immediately on the backend instance that handles this request
+ * (see backend README "Upload Settings" for the multi-instance caveat).
+ * All three fields are required on every call — this isn't a partial/PATCH
+ * update, so callers should submit the full current settings (e.g.
+ * pre-filled from a prior getUploadSettings call) with only the fields
+ * the admin actually changed.
+ *
+ * A 400 here means the backend rejected the values (e.g. a non-positive
+ * max size, an empty MIME allowlist, or a blocked extension missing its
+ * leading "."); the thrown TempCdnError's message is server-authored and
+ * safe to show directly as a form validation error.
+ */
+export async function updateUploadSettings(
+  token: string,
+  input: UpdateUploadSettingsRequest
+): Promise<UploadSettings> {
+  const res = await fetchWithFailover("/admin/upload-settings", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input)
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
 }

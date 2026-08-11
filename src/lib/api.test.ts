@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { getTempCdnStats, getConfig, getFileInfo, deleteFile, TempCdnError } from "./api";
+import {
+  getTempCdnStats,
+  getConfig,
+  getFileInfo,
+  deleteFile,
+  getUploadSettings,
+  updateUploadSettings,
+  TempCdnError
+} from "./api";
 
 function nodesResponse(
   nodes: Array<{ node_id: string; status: string }>,
@@ -193,6 +201,89 @@ describe("deleteFile", () => {
     await expect(deleteFile("abc123", "wrong-token")).rejects.toMatchObject({
       status: 403,
       message: expect.stringContaining("delete token")
+    });
+  });
+});
+
+describe("getUploadSettings", () => {
+  it("sends the admin bearer token and returns the parsed settings", async () => {
+    const body = {
+      max_upload_size_mb: 100,
+      allowed_mime_types: ["image/*"],
+      blocked_extensions: [".exe"],
+      updated_at: "2026-08-11T09:00:00Z"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getUploadSettings("session-token");
+
+    expect(result).toEqual(body);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/upload-settings");
+    expect(init.headers).toMatchObject({ Authorization: "Bearer session-token" });
+  });
+
+  it("throws a TempCdnError on a non-ok response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "unauthorized" }, 401))
+    );
+
+    await expect(getUploadSettings("bad-token")).rejects.toMatchObject({
+      status: 401,
+      message: "unauthorized"
+    });
+  });
+});
+
+describe("updateUploadSettings", () => {
+  it("PUTs the given settings with the admin bearer token", async () => {
+    const responseBody = {
+      max_upload_size_mb: 250,
+      allowed_mime_types: ["image/*", "application/pdf"],
+      blocked_extensions: [".exe", ".bat"],
+      updated_at: "2026-08-12T10:00:00Z",
+      updated_by: "admin-id-123"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(responseBody));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const input = {
+      max_upload_size_mb: 250,
+      allowed_mime_types: ["image/*", "application/pdf"],
+      blocked_extensions: [".exe", ".bat"]
+    };
+    const result = await updateUploadSettings("session-token", input);
+
+    expect(result).toEqual(responseBody);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/upload-settings");
+    expect(init.method).toBe("PUT");
+    expect(init.headers).toMatchObject({
+      "Content-Type": "application/json",
+      Authorization: "Bearer session-token"
+    });
+    expect(JSON.parse(init.body)).toEqual(input);
+  });
+
+  it("surfaces the server's validation message on 400", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        jsonResponse({ error: "invalid upload settings: max_upload_size_mb must be positive" }, 400)
+      )
+    );
+
+    await expect(
+      updateUploadSettings("session-token", {
+        max_upload_size_mb: 0,
+        allowed_mime_types: ["image/*"],
+        blocked_extensions: []
+      })
+    ).rejects.toMatchObject({
+      status: 400,
+      message: "invalid upload settings: max_upload_size_mb must be positive"
     });
   });
 });
