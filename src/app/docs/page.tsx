@@ -5,9 +5,24 @@ import { getApiBases } from "@/lib/api";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
+const TITLE = "API Docs — TempCDN";
+const DESCRIPTION = "Endpoint reference for the TempCDN upload API.";
+
 export const metadata: Metadata = {
-  title: "API Docs — TempCDN",
-  description: "Endpoint reference for the TempCDN upload API."
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/docs" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    url: "/docs"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION
+  }
 };
 
 type HttpMethod = "GET" | "POST" | "DELETE";

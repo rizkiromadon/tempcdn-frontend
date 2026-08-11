@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Wind, Terminal, Infinity as InfinityIcon } from "lucide-react";
+import Image from "next/image";
+import { Terminal, Infinity as InfinityIcon } from "lucide-react";
 
 const productLinks = [
   { href: "/upload", label: "Upload a file" },
@@ -36,9 +37,13 @@ export function SiteFooter() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="space-y-3">
             <Link href="/" className="group flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-colors duration-200 group-hover:bg-bloom group-hover:text-white">
-                <Wind className="h-4 w-4" strokeWidth={2.25} />
-              </div>
+              <Image
+                src="/icons/logo-mark.png"
+                alt="TempCDN logo"
+                width={36}
+                height={36}
+                className="h-9 w-9 rounded-full transition-transform duration-200 group-hover:scale-105"
+              />
               <span className="font-display text-sm font-bold text-ink">TempCDN</span>
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-ink-soft">

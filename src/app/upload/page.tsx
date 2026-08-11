@@ -3,9 +3,24 @@ import { UploadPanel } from "@/components/tempcdn/upload-panel";
 import { LookupForm } from "@/components/tempcdn/lookup-form";
 import { RecentDrops } from "@/components/tempcdn/recent-drops";
 
+const TITLE = "Upload — TempCDN";
+const DESCRIPTION = "Drop a file, get a link back. Expires automatically on a fixed timer.";
+
 export const metadata: Metadata = {
-  title: "Upload — TempCDN",
-  description: "Drop a file, get a link back. Expires automatically on a fixed timer."
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/upload" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    url: "/upload"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION
+  }
 };
 
 export default function UploadPage() {

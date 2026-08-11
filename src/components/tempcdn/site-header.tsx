@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wind } from "lucide-react";
+import Image from "next/image";
 
 export function SiteHeader() {
   return (
@@ -9,9 +9,14 @@ export function SiteHeader() {
           href="/"
           className="group flex items-center gap-2.5 rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-colors duration-200 group-hover:bg-bloom group-hover:text-white">
-            <Wind className="h-4 w-4" strokeWidth={2.25} />
-          </div>
+          <Image
+            src="/icons/logo-mark.png"
+            alt="TempCDN logo"
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9 rounded-full transition-transform duration-200 group-hover:scale-105"
+          />
           <div className="flex flex-col leading-none">
             <span className="font-display text-sm font-bold text-ink">TempCDN</span>
             <span className="hidden text-[11px] text-ink-faint sm:inline">
