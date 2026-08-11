@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/tempcdn/site-header";
-import { SiteFooter } from "@/components/tempcdn/site-footer";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
@@ -162,11 +160,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <SiteHeader />
-        <main id="main-content" className="relative z-0 flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        {children}
         <Toaster />
       </body>
     </html>
