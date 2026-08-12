@@ -1,6 +1,6 @@
 // Public entry point for the TempCDN API client.
-// Re-exports everything so existing `@/lib/api` imports keep working
-// while the implementation lives in smaller, focused modules below.
+// `@/lib/api` resolves here; the implementation lives in the
+// smaller, focused modules below.
 
 export { TempCdnError } from "./errors";
 export { getApiBases, invalidateNodesCache } from "./nodes";

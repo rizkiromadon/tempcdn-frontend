@@ -303,7 +303,7 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
   async function loadApiWithBases(basesCsv: string) {
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASES", basesCsv);
     vi.resetModules();
-    return import("./api");
+    return import("./index");
   }
 
   it("parses the comma-separated env var, trimming whitespace and trailing slashes", async () => {
@@ -387,7 +387,7 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASES", "");
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASE", "https://solo.tempcdn.eu.cc/api/v1");
     vi.resetModules();
-    const api = await import("./api");
+    const api = await import("./index");
 
     expect(await api.getApiBases()).toEqual(["https://solo.tempcdn.eu.cc/api/v1"]);
   });
@@ -403,7 +403,7 @@ describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_DOMAIN", domain);
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE", bootstrapNode);
     vi.resetModules();
-    return import("./api");
+    return import("./index");
   }
 
   it("bootstraps against the seed node and derives bases from node_id + domain", async () => {
