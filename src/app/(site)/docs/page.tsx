@@ -21,12 +21,21 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     type: "website",
-    url: "/docs"
+    url: "/docs",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TempCDN — files pass through, they don't stay"
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
-    description: DESCRIPTION
+    description: DESCRIPTION,
+    images: ["/og-image.png"]
   }
 };
 

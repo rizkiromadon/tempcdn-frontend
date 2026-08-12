@@ -37,13 +37,22 @@ export async function generateMetadata({ params }: FilePageProps): Promise<Metad
         title: file.original_name,
         description,
         type: "website",
-        ...(isActiveImage ? { images: [{ url: file.cdn_url }] } : {})
+        images: isActiveImage
+          ? [{ url: file.cdn_url }]
+          : [
+              {
+                url: "/og-image.png",
+                width: 1200,
+                height: 630,
+                alt: "TempCDN — files pass through, they don't stay"
+              }
+            ]
       },
       twitter: {
         card: isActiveImage ? "summary_large_image" : "summary",
         title: file.original_name,
         description,
-        ...(isActiveImage ? { images: [file.cdn_url] } : {})
+        images: [isActiveImage ? file.cdn_url : "/og-image.png"]
       }
     };
   } catch {
