@@ -4,7 +4,9 @@ import type {
   ApiKey,
   CreateApiKeyResponse,
   UploadSettings,
-  UpdateUploadSettingsRequest
+  UpdateUploadSettingsRequest,
+  LegalDocument,
+  UpdateLegalDocumentRequest
 } from "@/types/tempcdn";
 import { parseError } from "./errors";
 import { fetchWithFailover } from "./http";
@@ -80,6 +82,50 @@ export async function updateUploadSettings(
   input: UpdateUploadSettingsRequest
 ): Promise<UploadSettings> {
   const res = await fetchWithFailover("/admin/upload-settings", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input)
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+export async function getAdminTerms(token: string): Promise<LegalDocument> {
+  const res = await fetchWithFailover("/admin/legal/terms", {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+export async function updateAdminTerms(
+  token: string,
+  input: UpdateLegalDocumentRequest
+): Promise<LegalDocument> {
+  const res = await fetchWithFailover("/admin/legal/terms", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input)
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+export async function getAdminPrivacy(token: string): Promise<LegalDocument> {
+  const res = await fetchWithFailover("/admin/legal/privacy", {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store"
+  });
+  if (!res.ok) return parseError(res);
+  return res.json();
+}
+
+export async function updateAdminPrivacy(
+  token: string,
+  input: UpdateLegalDocumentRequest
+): Promise<LegalDocument> {
+  const res = await fetchWithFailover("/admin/legal/privacy", {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(input)

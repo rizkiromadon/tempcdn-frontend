@@ -7,6 +7,7 @@ export { getApiBases, invalidateNodesCache } from "./nodes";
 export { uploadFile } from "./upload";
 export { getConfig, getFileInfo, deleteFile, checkHealth, getNodes } from "./files";
 export { getTempCdnStats, type TempCdnStats } from "./stats";
+export { getTerms, getPrivacy } from "./legal";
 export {
   adminLogin,
   adminLogout,
@@ -15,5 +16,9 @@ export {
   listApiKeys,
   revokeApiKey,
   getUploadSettings,
-  updateUploadSettings
+  updateUploadSettings,
+  getAdminTerms,
+  updateAdminTerms,
+  getAdminPrivacy,
+  updateAdminPrivacy
 } from "./admin";

@@ -89,6 +89,19 @@ export interface UpdateUploadSettingsRequest {
   blocked_extensions: string[];
 }
 
+export type LegalDocType = "terms" | "privacy";
+
+export interface LegalDocument {
+  doc_type: LegalDocType;
+  content: string;
+  updated_at: string;
+  updated_by?: string;
+}
+
+export interface UpdateLegalDocumentRequest {
+  content: string;
+}
+
 export interface AdminSession {
   token: string;
   username: string;

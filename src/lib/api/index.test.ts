@@ -6,6 +6,12 @@ import {
   deleteFile,
   getUploadSettings,
   updateUploadSettings,
+  getTerms,
+  getPrivacy,
+  getAdminTerms,
+  updateAdminTerms,
+  getAdminPrivacy,
+  updateAdminPrivacy,
   TempCdnError
 } from "./index";
 
@@ -284,6 +290,167 @@ describe("updateUploadSettings", () => {
     ).rejects.toMatchObject({
       status: 400,
       message: "invalid upload settings: max_upload_size_mb must be positive"
+    });
+  });
+});
+
+describe("getTerms (public GET /api/v1/legal/terms)", () => {
+  it("returns the parsed document without an auth header", async () => {
+    const body = {
+      doc_type: "terms",
+      content: "These are the terms.",
+      updated_at: "2026-08-12T09:00:00Z"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getTerms();
+
+    expect(result).toEqual(body);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/legal/terms");
+    expect(init).toMatchObject({ cache: "no-store" });
+    expect(init?.headers).toBeUndefined();
+  });
+
+  it("throws a TempCdnError on a non-ok response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "legal document not found" }, 404))
+    );
+
+    await expect(getTerms()).rejects.toMatchObject({
+      status: 404,
+      message: "legal document not found"
+    });
+  });
+});
+
+describe("getPrivacy (public GET /api/v1/legal/privacy)", () => {
+  it("returns the parsed document", async () => {
+    const body = {
+      doc_type: "privacy",
+      content: "This is the privacy policy.",
+      updated_at: "2026-08-12T09:00:00Z",
+      updated_by: "admin-id-123"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getPrivacy();
+
+    expect(result).toEqual(body);
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toContain("/legal/privacy");
+  });
+});
+
+describe("getAdminTerms / updateAdminTerms", () => {
+  it("sends the admin bearer token and returns the parsed document", async () => {
+    const body = {
+      doc_type: "terms",
+      content: "Draft terms.",
+      updated_at: "2026-08-12T09:00:00Z"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getAdminTerms("session-token");
+
+    expect(result).toEqual(body);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/legal/terms");
+    expect(init.headers).toMatchObject({ Authorization: "Bearer session-token" });
+  });
+
+  it("PUTs the new content with the admin bearer token", async () => {
+    const responseBody = {
+      doc_type: "terms",
+      content: "Updated terms.",
+      updated_at: "2026-08-12T10:00:00Z",
+      updated_by: "admin-id-123"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(responseBody));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await updateAdminTerms("session-token", { content: "Updated terms." });
+
+    expect(result).toEqual(responseBody);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/legal/terms");
+    expect(init.method).toBe("PUT");
+    expect(init.headers).toMatchObject({
+      "Content-Type": "application/json",
+      Authorization: "Bearer session-token"
+    });
+    expect(JSON.parse(init.body)).toEqual({ content: "Updated terms." });
+  });
+
+  it("surfaces the server's validation message on 400", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        jsonResponse({ error: "legal document content must not be empty" }, 400)
+      )
+    );
+
+    await expect(
+      updateAdminTerms("session-token", { content: "   " })
+    ).rejects.toMatchObject({
+      status: 400,
+      message: "legal document content must not be empty"
+    });
+  });
+});
+
+describe("getAdminPrivacy / updateAdminPrivacy", () => {
+  it("sends the admin bearer token and returns the parsed document", async () => {
+    const body = {
+      doc_type: "privacy",
+      content: "Draft privacy policy.",
+      updated_at: "2026-08-12T09:00:00Z"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(body));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await getAdminPrivacy("session-token");
+
+    expect(result).toEqual(body);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/legal/privacy");
+    expect(init.headers).toMatchObject({ Authorization: "Bearer session-token" });
+  });
+
+  it("PUTs the new content with the admin bearer token", async () => {
+    const responseBody = {
+      doc_type: "privacy",
+      content: "Updated privacy policy.",
+      updated_at: "2026-08-12T10:00:00Z",
+      updated_by: "admin-id-123"
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(responseBody));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await updateAdminPrivacy("session-token", {
+      content: "Updated privacy policy."
+    });
+
+    expect(result).toEqual(responseBody);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/admin/legal/privacy");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(init.body)).toEqual({ content: "Updated privacy policy." });
+  });
+
+  it("throws a TempCdnError on an unauthorized response", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ error: "missing or invalid admin session" }, 401))
+    );
+
+    await expect(getAdminPrivacy("bad-token")).rejects.toMatchObject({
+      status: 401,
+      message: "missing or invalid admin session"
     });
   });
 });
