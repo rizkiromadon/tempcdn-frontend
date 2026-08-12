@@ -10,7 +10,7 @@ export function SiteHeader() {
           className="group flex items-center gap-2.5 rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/15"
         >
           <Image
-            src="/icons/logo-mark.png"
+            src="/icons/logo-mark.svg"
             alt="TempCDN logo"
             width={36}
             height={36}
