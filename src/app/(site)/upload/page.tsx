@@ -4,7 +4,7 @@ import { UploadPanel } from "@/components/tempcdn/upload-panel";
 import { LookupForm } from "@/components/tempcdn/lookup-form";
 import { RecentDrops } from "@/components/tempcdn/recent-drops";
 
-const TITLE = "Upload a File Free — Instant Share Link, No Account | TempCDN";
+const TITLE = "Upload a File Free — Instant Share Link, No Account";
 const DESCRIPTION =
   "Upload any file for free and get a shareable download link instantly. No account, no sign-up, and no credit card — files expire automatically on a fixed timer.";
 

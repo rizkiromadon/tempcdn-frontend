@@ -8,7 +8,7 @@ interface FilePageProps {
 }
 
 const FALLBACK_METADATA: Metadata = {
-  title: "File — TempCDN",
+  title: "File",
   description: "Anonymous file sharing with automatic expiry. No login, nothing left behind.",
   robots: { index: false, follow: true }
 };
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: FilePageProps): Promise<Metad
     const isActiveImage = getFileKind(file.content_type) === "image" && remaining > 0;
 
     return {
-      title: `${file.original_name} — TempCDN`,
+      title: file.original_name,
       description,
       // Ephemeral, per-upload content — never worth indexing since the
       // underlying file (and this URL's relevance) disappears on expiry.

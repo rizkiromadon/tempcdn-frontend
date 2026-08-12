@@ -1,14 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { LiveStats } from "@/components/tempcdn/live-stats";
 import { AdvantageBelt } from "@/components/tempcdn/advantage-belt";
 import { FaqSection } from "@/components/tempcdn/faq-section";
+import { ApiBaseUrlExample } from "@/components/tempcdn/api-base-url-example";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal, Infinity as InfinityIcon, Radio } from "lucide-react";
-import { getApiBases } from "@/lib/api";
 
-export default async function HomePage() {
-  const bases = await getApiBases();
-  const uploadUrl = `${bases[0]}/upload`;
+const TITLE = "Free Temporary File Sharing & Upload API, No Signup";
+const DESCRIPTION =
+  "Upload a file, get a self-destructing link, and share it instantly. No account, automatic expiry, and a simple REST API for developers. 100% free.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    type: "website",
+    url: "/"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION
+  }
+};
+
+export default function HomePage() {
   return (
     <div>
       {/* Hero */}
@@ -61,7 +81,8 @@ export default async function HomePage() {
               <code>
                 <span className="text-white/40"># any node in the pool works — requests round-robin automatically</span>
                 {"\n"}
-                curl -F file=@release.tar.gz {uploadUrl}
+                curl -F file=@release.tar.gz{" "}
+                <ApiBaseUrlExample fallback="https://srv1.tempcdn.example.com/api/v1/upload" />
               </code>
             </pre>
           </div>

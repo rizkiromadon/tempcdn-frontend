@@ -5,7 +5,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminSidebarProvider } from "@/lib/use-admin-sidebar";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard | TempCDN",
+  title: "Admin Dashboard",
   robots: { index: false, follow: false }
 };
 

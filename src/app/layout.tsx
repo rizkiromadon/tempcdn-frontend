@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const SITE_TITLE = "TempCDN — Free Temporary File Sharing & Upload API, No Signup";
 const SITE_DESCRIPTION =
-  "Upload a file, get a self-destructing link, and share it instantly. No account required, automatic expiry, and a simple REST API for developers. 100% free, forever.";
+  "Upload a file, get a self-destructing link, and share it instantly. No account, automatic expiry, and a simple REST API for developers. 100% free.";
 const SITE_KEYWORDS = [
   "temporary file sharing",
   "anonymous file upload",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_TITLE,
-    template: "%s"
+    template: "%s — TempCDN"
   },
   description: SITE_DESCRIPTION,
   keywords: SITE_KEYWORDS,
@@ -103,6 +103,10 @@ export const metadata: Metadata = {
   }
 };
 
+export const viewport: Viewport = {
+  themeColor: "#6366F1"
+};
+
 const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
@@ -146,7 +150,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
       <head>
-        <meta name="theme-color" content="#6366F1" />
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger

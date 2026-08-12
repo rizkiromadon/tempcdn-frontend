@@ -26,7 +26,6 @@ const CONTACT_EMAIL = `hello@${SITE_HOST.replace(/^www\./, "")}`;
 
 const projectLinks = [
   { href: "https://github.com/tempcdn/tempcdn", label: "Source on GitHub" },
-  { href: "/docs#status", label: "Status & uptime" },
   { href: `mailto:${CONTACT_EMAIL}`, label: CONTACT_EMAIL }
 ];
 

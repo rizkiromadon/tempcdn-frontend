@@ -3,7 +3,7 @@ import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Admin Login | TempCDN",
+  title: "Admin Login",
   robots: { index: false, follow: false }
 };
 

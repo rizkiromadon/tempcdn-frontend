@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/tempcdn/site-header";
 import { SiteFooter } from "@/components/tempcdn/site-footer";
 
 export const metadata: Metadata = {
-  title: "Page not found — TempCDN",
+  title: "Page not found",
   description: "The page you're looking for doesn't exist or may have moved.",
   robots: { index: false, follow: true }
 };

@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { getApiBases } from "@/lib/api";
+import { DocsBaseUrlBox } from "@/components/tempcdn/docs-base-url-box";
 import { highlightJson, looksLikeJson } from "@/lib/json-highlight";
 import { Terminal, UploadCloud, FileSearch, Trash2, Settings } from "lucide-react";
 
-const TITLE = "File Upload API Docs — Free REST API, No API Key | TempCDN";
+const TITLE = "File Upload API Docs — Free REST API, No API Key";
 const DESCRIPTION =
   "Full reference for the TempCDN file upload API: upload config, POST /upload, file lookup, and delete endpoints. Free, no authentication, no API key needed.";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+// Representative example base used in the static, server-rendered curl
+// examples on this page. This intentionally does NOT reflect live node
+// discovery — that's what DocsBaseUrlBox (a small client island) is for.
+// Keeping these examples static and server-rendered is what lets this
+// route be statically generated (see SEO audit P1) instead of forced
+// dynamic by a per-request /nodes fetch.
+const EXAMPLE_BASE = "https://srv1.tempcdn.example.com/api/v1";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -129,10 +137,7 @@ const nav = [
   { id: "file-delete", label: "Delete a file" }
 ];
 
-export default async function DocsPage() {
-  const bases = await getApiBases();
-  const API_BASE = bases[0];
-
+export default function DocsPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-14 sm:pt-20">
       <script
@@ -153,12 +158,11 @@ export default async function DocsPage() {
           </li>
         </ol>
       </nav>
+
       <section className="mb-12 space-y-4 sm:mb-14">
         <div className="flex items-center gap-2 text-bloom-strong">
           <Terminal className="h-4 w-4" strokeWidth={2} />
-          <span className="text-xs font-semibold uppercase tracking-wide">
-            reference
-          </span>
+          <span className="text-xs font-semibold uppercase tracking-wide">reference</span>
         </div>
         <h1 className="max-w-2xl font-display text-4xl font-bold leading-tight text-ink sm:text-5xl">
           File upload API docs
@@ -166,53 +170,10 @@ export default async function DocsPage() {
         <p className="max-w-lg text-base leading-relaxed text-ink-soft">
           Everything you need to upload, look up, and delete files through the
           free TempCDN REST API. No authentication, no API keys — just a
-          base URL and standard HTTP requests.
+          base url and standard HTTP requests.
         </p>
-        <div className="max-w-lg rounded-xl border border-line bg-paper p-5 shadow-soft">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
-            base url
-          </div>
-          <code className="text-mono-tight break-all font-mono text-sm text-bloom-strong">
-            {API_BASE}
-          </code>
-          <p className="mt-3 text-sm leading-relaxed text-ink-faint">
-            All endpoints below are relative to this base url.
-            {bases.length > 1 ? (
-              <>
-                {" "}This is one of {bases.length} nodes currently online. The
-                frontend rotates requests across all of them and retries the
-                next node on a timeout or 5xx, so you can call any node in
-                the list — you don&apos;t need to pin to this specific one.
-              </>
-            ) : (
-              <>
-                {" "}Only one node is currently configured or reachable, so
-                there&apos;s nothing to round-robin against right now.
-              </>
-            )}
-          </p>
-        </div>
+        <DocsBaseUrlBox />
       </section>
-
-      {bases.length > 1 && (
-        <section className="mb-14 rounded-xl border border-line bg-paper-sunk p-5">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
-            all online nodes
-          </div>
-          <ul className="space-y-1.5">
-            {bases.map((base) => (
-              <li key={base} className="font-mono text-xs text-ink-soft">
-                {base}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-sm leading-relaxed text-ink-faint">
-            Any of these will work for every endpoint on this page. If one is
-            unreachable, retry against another — there&apos;s no session or
-            sticky routing tying a request to a particular node.
-          </p>
-        </section>
-      )}
 
       {/* On-page nav */}
       <nav aria-label="Documentation sections" className="mb-14 flex flex-wrap gap-2">
@@ -236,7 +197,7 @@ export default async function DocsPage() {
             always reflect the server&apos;s actual configuration.
           </p>
 
-          <CodeBlock label="request">{`curl ${API_BASE}/config`}</CodeBlock>
+          <CodeBlock label="request">{`curl ${EXAMPLE_BASE}/config`}</CodeBlock>
 
           <CodeBlock label="200 OK">{`{
   "max_upload_size_bytes": 134217728,
@@ -326,7 +287,7 @@ export default async function DocsPage() {
             </ul>
           </div>
 
-          <CodeBlock label="request">{`curl -X POST ${API_BASE}/upload \\
+          <CodeBlock label="request">{`curl -X POST ${EXAMPLE_BASE}/upload \\
   -F "file=@photo.png;type=image/png"`}</CodeBlock>
 
           <CodeBlock label="200 OK">{`{
@@ -380,7 +341,7 @@ export default async function DocsPage() {
             <code className="text-ink">id</code> returned from the upload response.
           </p>
 
-          <CodeBlock label="request">{`curl ${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11`}</CodeBlock>
+          <CodeBlock label="request">{`curl ${EXAMPLE_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11`}</CodeBlock>
 
           <CodeBlock label="200 OK">{`{
   "id": "b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11",
@@ -435,10 +396,10 @@ export default async function DocsPage() {
             </p>
           </div>
 
-          <CodeBlock label="request (header)">{`curl -X DELETE ${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11 \\
+          <CodeBlock label="request (header)">{`curl -X DELETE ${EXAMPLE_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11 \\
   -H "X-Delete-Token: dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"`}</CodeBlock>
 
-          <CodeBlock label="request (query param alternative)">{`curl -X DELETE "${API_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11?delete_token=dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"`}</CodeBlock>
+          <CodeBlock label="request (query param alternative)">{`curl -X DELETE "${EXAMPLE_BASE}/files/b6b3f6d2-9b1a-4e8b-8a7a-2e6c9e6b0a11?delete_token=dt_9f2c1a7e4b3d8f6a0c5e2b7d1a4f8c3e"`}</CodeBlock>
 
           <CodeBlock label="200 OK">{`{ "deleted": true }`}</CodeBlock>
 
