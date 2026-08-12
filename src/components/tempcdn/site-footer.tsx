@@ -19,7 +19,7 @@ const SITE_HOST = (() => {
 const CONTACT_EMAIL = `hello@${SITE_HOST.replace(/^www\./, "")}`;
 
 const connectLinks = [
-  { href: "https://github.com/tempcdn/tempcdn", label: "Source on GitHub" },
+  { href: "https://github.com/rizkiromadon/tempcdn", label: "Source on GitHub" },
   { href: `mailto:${CONTACT_EMAIL}`, label: "Contact us" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" }
