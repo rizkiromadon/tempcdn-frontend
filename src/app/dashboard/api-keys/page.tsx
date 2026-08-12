@@ -32,7 +32,7 @@ function Overlay({
         tabIndex={onClose ? 0 : -1}
         onClick={onClose}
         className={cn(
-          "absolute inset-0 bg-ink/30 backdrop-blur-[2px]",
+          "absolute inset-0 bg-black/60 backdrop-blur-[2px]",
           !onClose && "pointer-events-none"
         )}
       />

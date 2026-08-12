@@ -60,7 +60,7 @@ function MethodTag({ method }: { method: HttpMethod }) {
 function CodeBlock({ children, label }: { children: string; label?: string }) {
   const isJson = looksLikeJson(children);
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-ink shadow-soft">
+    <div className="overflow-hidden rounded-xl border border-line bg-[#050A14] shadow-soft">
       {label && (
         <div className="border-b border-white/10 px-3.5 py-2 font-mono text-[10px] uppercase tracking-wide text-white/40">
           {label}

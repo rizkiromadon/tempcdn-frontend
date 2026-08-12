@@ -27,7 +27,7 @@ export function AdminSidebar() {
           type="button"
           aria-label="Close sidebar"
           onClick={close}
-          className="fixed inset-0 z-20 bg-ink/20 backdrop-blur-[1px] lg:hidden"
+          className="fixed inset-0 z-20 bg-black/50 backdrop-blur-[1px] lg:hidden"
         />
       )}
 
