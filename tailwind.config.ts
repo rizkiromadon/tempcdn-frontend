@@ -10,36 +10,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        mist: "#F6F7FB",
+        mist: "#050B18",
         paper: {
-          DEFAULT: "#FFFFFF",
-          sunk: "#F1F2F8"
+          DEFAULT: "#0B1526",
+          sunk: "#081020"
         },
         line: {
-          DEFAULT: "#E6E8F2",
-          soft: "#EEF0F8"
+          DEFAULT: "#1C2A42",
+          soft: "#152238"
         },
         ink: {
-          DEFAULT: "#1F2430",
-          soft: "#666C7D",
-          faint: "#5B6072"
+          DEFAULT: "#EAF0FB",
+          soft: "#93A2BE",
+          faint: "#6C7B99"
         },
         bloom: {
-          DEFAULT: "#6366F1",
-          soft: "#EEF0FE",
-          strong: "#4F46E5"
+          DEFAULT: "#2E9BFF",
+          soft: "#0F2A4A",
+          strong: "#5CC2FF"
         },
         sage: {
-          DEFAULT: "#187A54",
-          soft: "#E7F9F1"
+          DEFAULT: "#2FBE86",
+          soft: "#0E2A22"
         },
         amber: {
-          DEFAULT: "#8F5313",
-          soft: "#FDF1E3"
+          DEFAULT: "#F2B043",
+          soft: "#2E230C"
         },
         coral: {
-          DEFAULT: "#B03D33",
-          soft: "#FDEBEA"
+          DEFAULT: "#FF6B6B",
+          soft: "#301416"
         }
       },
       fontFamily: {
@@ -57,13 +57,13 @@ const config: Config = {
         full: "9999px"
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(31,36,48,0.04), 0 8px 24px -12px rgba(31,36,48,0.10)",
-        lifted: "0 4px 12px rgba(31,36,48,0.06), 0 16px 40px -16px rgba(31,36,48,0.16)",
-        glow: "0 0 0 4px rgba(99,102,241,0.12)"
+        soft: "0 1px 2px rgba(0,0,0,0.35), 0 8px 24px -12px rgba(0,0,0,0.55)",
+        lifted: "0 4px 16px rgba(0,0,0,0.45), 0 20px 48px -16px rgba(46,155,255,0.18)",
+        glow: "0 0 0 4px rgba(46,155,255,0.18)"
       },
       backgroundImage: {
         aurora:
-          "radial-gradient(ellipse 60% 40% at 15% 0%, rgba(99,102,241,0.10), transparent), radial-gradient(ellipse 50% 35% at 90% 10%, rgba(47,190,134,0.08), transparent)"
+          "radial-gradient(ellipse 60% 40% at 15% 0%, rgba(46,155,255,0.16), transparent), radial-gradient(ellipse 50% 35% at 90% 10%, rgba(47,190,134,0.08), transparent)"
       },
       keyframes: {
         "pulse-slow": {
