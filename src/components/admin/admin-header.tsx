@@ -8,12 +8,6 @@ import { getAdminSession, clearAdminSession } from "@/lib/admin-auth";
 import { useAdminSession } from "@/lib/use-admin-session";
 import { useAdminSidebar } from "@/lib/use-admin-sidebar";
 
-/**
- * Thin top bar for every /dashboard page - deliberately separate from the
- * public SiteHeader (see app/(site)/layout.tsx). The brand mark used to
- * live here but now lives in AdminSidebar; this bar only holds the
- * sidebar toggle and the logout action once signed in.
- */
 export function AdminHeader() {
   const { status, session } = useAdminSession();
   const { toggle } = useAdminSidebar();
@@ -27,8 +21,6 @@ export function AdminHeader() {
       try {
         await adminLogout(stored.token);
       } catch {
-        // Best-effort - clear the local session below regardless, same
-        // reasoning as the logout button on the dashboard page itself.
       }
     }
     clearAdminSession();

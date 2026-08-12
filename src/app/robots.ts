@@ -8,11 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Individual file pages are ephemeral (auto-expiring, non-canonical
-        // content) and shouldn't be crawled/indexed on a per-URL basis.
-        // /dashboard is the admin login + dashboard, gated by its own
-        // per-page "noindex" metadata already, but disallowed here too so
-        // crawlers don't even fetch it.
         disallow: ["/files/", "/dashboard"]
       }
     ],

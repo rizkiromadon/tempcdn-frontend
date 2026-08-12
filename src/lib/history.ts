@@ -13,12 +13,6 @@ export interface RecentEntry {
   cdn_url: string;
   created_at: string;
   expires_at: string;
-  /**
-   * Delete authorization secret, captured from the upload response and
-   * kept only in this device's localStorage — the API never returns it
-   * again afterwards. Absent for entries saved before this field existed;
-   * those files can no longer be deleted manually (see UploadedFile).
-   */
   delete_token?: string;
 }
 
@@ -32,7 +26,6 @@ export function getRecentEntries(): RecentEntry[] {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as RecentEntry[];
-    // Drop anything already past expiry so the list stays relevant.
     const now = Date.now();
     return parsed.filter((entry) => new Date(entry.expires_at).getTime() > now);
   } catch {
@@ -59,15 +52,9 @@ export function pushRecentEntry(file: UploadedFile) {
     ].slice(0, MAX_ENTRIES);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // localStorage unavailable (private mode, quota, etc.) — fail silently
   }
 }
 
-/**
- * Looks up a single recent entry by id, primarily so pages that only have
- * the id (e.g. /files/[id], loaded from a shared link) can recover the
- * delete token if this browser is the one that originally uploaded it.
- */
 export function getRecentEntry(id: string): RecentEntry | undefined {
   return getRecentEntries().find((entry) => entry.id === id);
 }
@@ -78,7 +65,6 @@ export function removeRecentEntry(id: string) {
     const next = getRecentEntries().filter((entry) => entry.id !== id);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // ignore
   }
 }
 
@@ -87,6 +73,5 @@ export function clearRecentEntries() {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
-    // ignore
   }
 }

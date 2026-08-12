@@ -148,7 +148,7 @@ function DashboardContent({ session }: { session: AdminSession }) {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10">
-      {/* Header bar: page title + account + backend status, all in one row */}
+      {}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-line pb-5">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Dashboard</h1>
@@ -172,7 +172,7 @@ function DashboardContent({ session }: { session: AdminSession }) {
         </div>
       </div>
 
-      {/* Stat grid */}
+      {}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           label="Active files"
@@ -204,7 +204,7 @@ function DashboardContent({ session }: { session: AdminSession }) {
         />
       </div>
 
-      {/* Detail panels */}
+      {}
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <SectionCard title="Content types">
           {stats.status === "loading" ? (

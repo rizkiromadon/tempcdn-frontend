@@ -8,7 +8,6 @@ interface BurnTimerProps {
   expiresAt: string;
   createdAt: string;
   className?: string;
-  /** "gauge" for the radial hero timer, "bar" for the compact linear variant */
   variant?: "gauge" | "bar";
 }
 

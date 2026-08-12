@@ -9,9 +9,6 @@ export function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
   const units = ["B", "KB", "MB", "GB", "TB", "PB"];
   const rawIndex = Math.floor(Math.log(bytes) / Math.log(1024));
-  // Clamp so values at/beyond the largest known unit (or any future
-  // config/backend value we don't anticipate) never index past the array
-  // and silently render "undefined" instead of a number.
   const i = Math.min(Math.max(rawIndex, 0), units.length - 1);
   const value = bytes / Math.pow(1024, i);
   return `${value.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
@@ -71,7 +68,6 @@ export function isPreviewable(contentType: string): boolean {
   return kind === "image";
 }
 
-/** True if `mime` matches a pattern from allowed_mime_types (supports "type/*" wildcards). */
 function matchesMimePattern(mime: string, pattern: string): boolean {
   if (pattern === mime) return true;
   if (pattern.endsWith("/*")) {
@@ -91,11 +87,6 @@ export interface FileValidationResult {
   reason?: string;
 }
 
-/**
- * Validates a File against server-provided upload config before it's sent
- * over the wire: max size, blocked extensions, and allowed mime types
- * (empty allowed_mime_types means "no restriction").
- */
 export function validateFileAgainstConfig(
   file: File,
   config: FileValidationConfig
@@ -125,7 +116,6 @@ export function validateFileAgainstConfig(
   return { valid: true };
 }
 
-/** Fraction of TTL remaining, clamped 0..1. Used to drive burn-state color/animation. */
 export function fractionRemaining(createdAt: string, expiresAt: string, now = Date.now()): number {
   const created = new Date(createdAt).getTime();
   const expires = new Date(expiresAt).getTime();

@@ -1,12 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * Server-streamed placeholder shown while this route segment's data
- * (generateMetadata's getFileInfo call) is still resolving, before
- * FileDetail's own client-side skeleton takes over post-hydration.
- * Intentionally mirrors FileDetail's DetailSkeleton shape so there's no
- * visible layout jump when the real component mounts.
- */
 export default function FileLoading() {
   return (
     <div className="mx-auto max-w-xl px-5 pb-24 pt-10 sm:pt-14">

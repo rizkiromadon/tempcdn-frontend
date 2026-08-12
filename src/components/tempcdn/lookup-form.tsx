@@ -14,8 +14,6 @@ export function LookupForm() {
     const raw = value.trim();
     if (!raw) return;
 
-    // Be forgiving if the user pasted a full CDN URL instead of a bare ID:
-    // extract the last path segment so the lookup still works.
     let id = raw;
     try {
       const url = new URL(raw);
@@ -24,7 +22,6 @@ export function LookupForm() {
         id = segments[segments.length - 1];
       }
     } catch {
-      // Not a URL — treat the trimmed input as the raw ID.
     }
 
     router.push(`/files/${encodeURIComponent(id)}`);

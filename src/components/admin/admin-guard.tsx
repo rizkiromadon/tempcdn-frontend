@@ -6,13 +6,6 @@ import { Loader2 } from "lucide-react";
 import { useAdminSession } from "@/lib/use-admin-session";
 import type { AdminSession } from "@/types/tempcdn";
 
-/**
- * Wraps a protected admin page: redirects to /dashboard/login when there's
- * no valid session, and only renders children once a session has been
- * verified against the server (see useAdminSession). Renders a loading
- * state in between rather than the login page or the protected content,
- * so a page reload doesn't flash the wrong screen while /me is in flight.
- */
 export function AdminGuard({
   children
 }: {

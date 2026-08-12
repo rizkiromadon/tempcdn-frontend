@@ -37,11 +37,10 @@ describe("formatBytes", () => {
   });
 
   it("never produces 'undefined' or NaN for very large values", () => {
-    const veryLarge = 1024 ** 6; // far beyond PB
+    const veryLarge = 1024 ** 6;
     const result = formatBytes(veryLarge);
     expect(result).not.toContain("undefined");
     expect(result).not.toContain("NaN");
-    // Clamped to the largest known unit (PB) rather than indexing past it.
     expect(result.endsWith("PB")).toBe(true);
   });
 
@@ -188,7 +187,6 @@ describe("validateFileAgainstConfig", () => {
   });
 
   it("skips mime validation when the browser reports an empty file.type", () => {
-    // Intentional per §5 of the improvement plan: not a bug to "fix".
     const file = makeFile("mystery", 100, "");
     const result = validateFileAgainstConfig(file, {
       ...baseConfig,
@@ -222,7 +220,7 @@ describe("fractionRemaining", () => {
 
   it("clamps to 0 when total duration is non-positive", () => {
     const created = "2026-01-02T00:00:00Z";
-    const expires = "2026-01-01T00:00:00Z"; // expires before created
+    const expires = "2026-01-01T00:00:00Z";
     expect(fractionRemaining(created, expires)).toBe(0);
   });
 });

@@ -61,11 +61,6 @@ export function FileDetail({ id }: FileDetailProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // Only treat "back" as safe to use when we actually navigated here
-    // from elsewhere in this app (e.g. clicked from /upload's recent
-    // list). A fresh load — direct link, new tab, refresh — has no
-    // in-app history to go back to, so router.back() would either do
-    // nothing or leave the site entirely.
     try {
       const ref = document.referrer;
       setCameFromInApp(Boolean(ref) && new URL(ref).origin === window.location.origin);
@@ -74,13 +69,6 @@ export function FileDetail({ id }: FileDetailProps) {
     }
   }, []);
 
-  /**
-   * Returns to wherever the user came from (recent uploads, lookup
-   * search, etc.) instead of always dropping them on the landing page.
-   * Falls back to /upload — not "/" — since every path that leads here
-   * (recent drops, the lookup form, a freshly uploaded file) originates
-   * from the upload page, not the marketing landing page.
-   */
   function goBack() {
     if (cameFromInApp) {
       router.back();
@@ -114,11 +102,6 @@ export function FileDetail({ id }: FileDetailProps) {
     };
   }, [id, attempt]);
 
-  // The API only returns delete_token once, in the /upload response — a
-  // GET here never includes it. So the only place we can still have it is
-  // this browser's local upload history, keyed by id. If it's missing
-  // (shared link, different device, or uploaded before this rollout),
-  // deletion is simply no longer possible for this file.
   const deleteToken = getRecentEntry(id)?.delete_token;
 
   async function handleDelete(fileId: string) {

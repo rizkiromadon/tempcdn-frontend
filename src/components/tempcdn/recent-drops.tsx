@@ -68,7 +68,6 @@ export function RecentDrops() {
     setEntries(getRecentEntries());
   }, []);
 
-  // Poll lightly so expired entries disappear without a full refresh.
   useEffect(() => {
     const interval = setInterval(() => setEntries(getRecentEntries()), 15000);
     return () => clearInterval(interval);
@@ -88,8 +87,6 @@ export function RecentDrops() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
-  // Keep the current page in range whenever the filtered set or its
-  // length changes (new search, entries expiring off the list, etc.).
   useEffect(() => {
     setPage((p) => Math.min(p, totalPages));
   }, [totalPages]);

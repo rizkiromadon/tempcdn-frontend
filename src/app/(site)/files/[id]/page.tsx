@@ -18,8 +18,6 @@ export async function generateMetadata({ params }: FilePageProps): Promise<Metad
     const file = await getFileInfo(params.id);
 
     if (file.expired) {
-      // Don't expose details of a file that no longer exists — fall back to
-      // generic metadata rather than describing something that's gone.
       return FALLBACK_METADATA;
     }
 
@@ -34,8 +32,6 @@ export async function generateMetadata({ params }: FilePageProps): Promise<Metad
     return {
       title: file.original_name,
       description,
-      // Ephemeral, per-upload content — never worth indexing since the
-      // underlying file (and this URL's relevance) disappears on expiry.
       robots: { index: false, follow: true },
       openGraph: {
         title: file.original_name,
@@ -51,7 +47,6 @@ export async function generateMetadata({ params }: FilePageProps): Promise<Metad
       }
     };
   } catch {
-    // 404, network error, timeout, etc. — safe generic fallback either way.
     return FALLBACK_METADATA;
   }
 }

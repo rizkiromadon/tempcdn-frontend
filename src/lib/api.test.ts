@@ -300,13 +300,6 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
     vi.resetModules();
   });
 
-  /**
-   * Env vars are read once at module load time (see the API_BASES IIFE in
-   * api.ts), so each test needs a fresh module instance after stubbing
-   * NEXT_PUBLIC_TEMPCDN_API_BASES - vi.resetModules() + a dynamic import
-   * achieves that without restructuring api.ts to accept bases as a
-   * parameter just for testability.
-   */
   async function loadApiWithBases(basesCsv: string) {
     vi.stubEnv("NEXT_PUBLIC_TEMPCDN_API_BASES", basesCsv);
     vi.resetModules();
@@ -337,7 +330,6 @@ describe("round-robin + failover across NEXT_PUBLIC_TEMPCDN_API_BASES", () => {
     expect(calledUrls[0]).toContain("srv1.tempcdn.eu.cc");
     expect(calledUrls[1]).toContain("srv2.tempcdn.eu.cc");
     expect(calledUrls[2]).toContain("srv3.tempcdn.eu.cc");
-    // Wraps back around to the first server on the 4th call.
     expect(calledUrls[3]).toContain("srv1.tempcdn.eu.cc");
   });
 
@@ -465,7 +457,7 @@ describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
     const api = await loadApiWithDomain("productiondomain.com");
     const fetchMock = vi
       .fn()
-      .mockRejectedValueOnce(new TypeError("network down")) // srv1 unreachable
+      .mockRejectedValueOnce(new TypeError("network down"))
       .mockResolvedValueOnce(
         jsonResponse(nodesResponse([{ node_id: "srv2", status: "online" }]))
       );
@@ -491,7 +483,6 @@ describe("dynamic node discovery via NEXT_PUBLIC_TEMPCDN_DOMAIN", () => {
     await api.getConfig();
     await api.getConfig();
 
-    // Exactly one /nodes discovery call, plus one /config call per getConfig().
     const nodesCalls = fetchMock.mock.calls.filter(([url]) => (url as string).includes("/nodes"));
     expect(nodesCalls).toHaveLength(1);
   });

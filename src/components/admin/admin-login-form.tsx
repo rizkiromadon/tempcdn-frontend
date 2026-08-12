@@ -8,12 +8,6 @@ import { Button } from "@/components/ui/button";
 import { adminLogin, TempCdnError } from "@/lib/api";
 import { setAdminSession, getAdminSession } from "@/lib/admin-auth";
 
-/**
- * Login form for the admin dashboard. On success, persists the session
- * (see lib/admin-auth.ts) and navigates to /dashboard; the dashboard page
- * itself re-verifies the token against GET /api/v1/admin/me on load, so
- * this component doesn't need to.
- */
 export function AdminLoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,10 +15,6 @@ export function AdminLoginForm() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // If a (not-yet-expired, per getAdminSession's own check) session is
-  // already stored, skip the form entirely - the dashboard page will
-  // still re-verify it against the server on load, so this is just
-  // avoiding an unnecessary login prompt, not a security boundary.
   useEffect(() => {
     if (getAdminSession()) {
       router.replace("/dashboard");

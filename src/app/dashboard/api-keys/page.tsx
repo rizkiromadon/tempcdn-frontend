@@ -17,12 +17,6 @@ type LoadState =
   | { status: "error"; message: string }
   | { status: "ready"; keys: ApiKey[] };
 
-/**
- * Full-screen-centered overlay used both for the create form and the
- * one-time key reveal. There's no dialog primitive in this project yet
- * (see components/ui), so this is a small bespoke implementation rather
- * than pulling in a new dependency for two use sites.
- */
 function Overlay({
   onClose,
   children

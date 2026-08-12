@@ -49,7 +49,6 @@ export function FaqSection() {
     <section className="mx-auto max-w-5xl border-t border-line px-5 py-16 sm:py-20">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <h2 className="mb-1 font-display text-xl font-bold text-ink sm:text-2xl">

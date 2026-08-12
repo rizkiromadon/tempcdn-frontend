@@ -3,17 +3,8 @@
 import { useEffect, useState } from "react";
 import { getApiBases } from "@/lib/api";
 
-/** Representative example shown before live discovery resolves client-side. */
 const FALLBACK_BASE = "https://srv1.tempcdn.example.com/api/v1";
 
-/**
- * Renders the "base url" display box on /docs — the one piece of that
- * page's content that's genuinely live (the current online node). Kept as
- * a small client island so the rest of the page (headings, reference docs,
- * curl examples with representative URLs) stays static and server-rendered
- * for crawlers, instead of pulling the whole page's real content into
- * client-only rendering.
- */
 export function DocsBaseUrlBox() {
   const [bases, setBases] = useState<readonly string[]>([FALLBACK_BASE]);
 
@@ -24,7 +15,6 @@ export function DocsBaseUrlBox() {
         if (!cancelled && online.length > 0) setBases(online);
       })
       .catch(() => {
-        // Keep showing the fallback base.
       });
     return () => {
       cancelled = true;

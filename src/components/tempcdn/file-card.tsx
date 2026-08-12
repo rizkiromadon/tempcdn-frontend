@@ -16,11 +16,6 @@ interface FileCardProps {
   file: UploadedFile;
   onDelete?: (id: string) => void;
   deleting?: boolean;
-  /**
-   * When delete isn't possible (no local delete token for this file),
-   * show this instead of the delete button so it reads as "not available
-   * here" rather than the button silently disappearing.
-   */
   deleteUnavailableReason?: string;
 }
 

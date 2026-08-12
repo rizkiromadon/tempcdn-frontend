@@ -10,38 +10,6 @@ import type {
   UpdateUploadSettingsRequest
 } from "@/types/tempcdn";
 
-/**
- * Dynamic node discovery + round-robin + failover across multiple backend
- * instances.
- *
- * Backends are no longer hardcoded via env. Instead, set
- * NEXT_PUBLIC_TEMPCDN_DOMAIN to the production domain (e.g.
- * "productiondomain.com"). Each backend node is reachable at
- * "https://{node_id}.{domain}/api/v1", and the live set of nodes (plus
- * their online/offline status) is discovered by calling GET /api/v1/nodes
- * against a bootstrap node.
- *
- * Bootstrapping: since there's no base URL before discovery has run, the
- * very first /nodes call is made against a seed node
- * (NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE, default "srv1"). Once that call
- * succeeds we have a full node list and no longer need the seed - it's
- * only a bootstrap, not treated specially afterwards. If the seed itself
- * is offline/unreachable, discovery falls back to trying a few other
- * well-known node ids (srv2..srv6) before giving up.
- *
- * The discovered list is cached for NODES_CACHE_TTL_MS and shared by all
- * callers; only nodes reporting status "online" are used for actual API
- * traffic. This only works correctly when every online node shares one
- * metadata store (see backend README "Running Multiple Instances") -
- * otherwise a request that round-robins to a different node than the one
- * that handled an earlier request (e.g. upload then get-info) won't find
- * the record it's looking for.
- *
- * For local dev (or if NEXT_PUBLIC_TEMPCDN_DOMAIN isn't set), this falls
- * back to the old static env-based configuration:
- * NEXT_PUBLIC_TEMPCDN_API_BASES (comma-separated) or
- * NEXT_PUBLIC_TEMPCDN_API_BASE (single).
- */
 const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_TEMPCDN_DOMAIN?.trim().replace(/\/+$/, "");
 const BOOTSTRAP_NODE_IDS: readonly string[] = (
   process.env.NEXT_PUBLIC_TEMPCDN_BOOTSTRAP_NODE?.trim() || "srv1"
@@ -68,22 +36,13 @@ const STATIC_BASES: readonly string[] = (() => {
   return [single.replace(/\/+$/, "")];
 })();
 
-/** How long a discovered node list is trusted before re-fetching /nodes. */
 const NODES_CACHE_TTL_MS = 30_000;
-/** Short timeout for the /nodes discovery call itself. */
 const NODES_TIMEOUT_MS = 5_000;
 
 let cachedOnlineBases: readonly string[] | null = null;
 let cacheExpiresAt = 0;
-/** In-flight discovery promise, so concurrent callers share one request. */
 let discoveryInFlight: Promise<readonly string[]> | null = null;
 
-/**
- * Calls GET /api/v1/nodes against the given base and returns the base URLs
- * of every node reporting status "online". Throws on network error, non-ok
- * response, or a payload with no online nodes (all treated as discovery
- * failure by the caller, which tries the next seed).
- */
 async function fetchNodesFrom(base: string): Promise<readonly string[]> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), NODES_TIMEOUT_MS);
@@ -101,12 +60,6 @@ async function fetchNodesFrom(base: string): Promise<readonly string[]> {
   }
 }
 
-/**
- * Discovers the current set of online node base URLs by trying the
- * bootstrap seed node(s) in order (see BOOTSTRAP_NODE_IDS) until one
- * responds with a usable node list. Result is cached for
- * NODES_CACHE_TTL_MS.
- */
 async function discoverNodes(): Promise<readonly string[]> {
   let lastError: unknown;
   for (const seedId of BOOTSTRAP_NODE_IDS) {
@@ -114,26 +67,11 @@ async function discoverNodes(): Promise<readonly string[]> {
       return await fetchNodesFrom(nodeBase(seedId));
     } catch (err) {
       lastError = err;
-      // Try the next well-known seed node.
     }
   }
   throw lastError instanceof Error ? lastError : new Error("node discovery failed");
 }
 
-/**
- * Returns the current list of online backend bases, using the cache when
- * fresh. When the domain-based discovery mode isn't configured
- * (NEXT_PUBLIC_TEMPCDN_DOMAIN unset), returns the static env-configured
- * bases instead and skips discovery entirely - this is what keeps local
- * dev working unchanged.
- *
- * On cache miss, concurrent callers share a single in-flight discovery
- * call rather than each firing their own /nodes request. If discovery
- * fails and we have a (possibly stale) cached list, we fall back to it
- * rather than failing outright - stale node info is still likely usable,
- * and normal per-request failover handles any node that's since gone
- * offline.
- */
 async function getOnlineBases(): Promise<readonly string[]> {
   if (!PRODUCTION_DOMAIN) return STATIC_BASES;
 
@@ -148,7 +86,7 @@ async function getOnlineBases(): Promise<readonly string[]> {
         return bases;
       })
       .catch((err) => {
-        if (cachedOnlineBases) return cachedOnlineBases; // serve stale on failure
+        if (cachedOnlineBases) return cachedOnlineBases;
         throw err;
       })
       .finally(() => {
@@ -158,36 +96,15 @@ async function getOnlineBases(): Promise<readonly string[]> {
   return discoveryInFlight;
 }
 
-/**
- * Public accessor for the current set of backend bases (discovered online
- * nodes in domain mode, or the static env list otherwise), in the order
- * they were last seen (not rotation order). Exposed so call sites like the
- * docs page can display *a* representative base URL (e.g. for curl
- * examples) and note when more than one server is in play, without making
- * an actual load-balanced request.
- */
 export async function getApiBases(): Promise<readonly string[]> {
   return getOnlineBases();
 }
 
-/**
- * Forces a fresh /nodes discovery call on next use, bypassing the cache.
- * Useful after a run of failovers suggests the cached node list is stale.
- */
 export function invalidateNodesCache(): void {
   cachedOnlineBases = null;
   cacheExpiresAt = 0;
 }
 
-/**
- * Module-level rotation cursor. Each call to nextBaseOrder() advances this
- * by one and returns all online bases reordered to start from the next one
- * in sequence, so successive top-level requests (not retries within the
- * same request - see fetchWithFailover) are spread round-robin across
- * every online server. Plain module state (not e.g. localStorage) is
- * intentional: rotation only needs to be fair within one page session, and
- * resetting on reload is harmless.
- */
 let rotationCursor = 0;
 function rotate(bases: readonly string[]): readonly string[] {
   if (bases.length === 0) return bases;
@@ -217,22 +134,13 @@ async function parseError(res: Response, fallbackMessage?: string): Promise<neve
     const body = await res.json();
     if (body?.error) message = body.error;
   } catch {
-    // response had no JSON body
   }
   throw new TempCdnError(message, res.status);
 }
 
-/** Default timeout for read-only calls (config/file-info/health/stats). */
 const DEFAULT_TIMEOUT_MS = 10_000;
-/** Deletes get a little more headroom than reads. */
 const DELETE_TIMEOUT_MS = 15_000;
 
-/**
- * Wraps `fetch` with an AbortController-based timeout so a hung backend
- * can't leave the UI waiting forever. Timeouts surface as a TempCdnError
- * with status 0, matching the convention used for network-level failures
- * elsewhere in this file (e.g. xhr.onerror).
- */
 async function fetchWithTimeout(
   url: string,
   init: RequestInit = {},
@@ -252,28 +160,10 @@ async function fetchWithTimeout(
   }
 }
 
-/**
- * Returns true for failures worth retrying against a different backend
- * instance: network-level errors/timeouts (status 0, see
- * fetchWithTimeout) and 5xx server errors. 4xx responses are the server
- * correctly rejecting the request (bad input, missing auth, not found,
- * etc.) - retrying those against another instance would waste a round
- * trip and can never change the outcome, since the same request would be
- * rejected the same way everywhere.
- */
 function isRetryableStatus(status: number): boolean {
   return status === 0 || status >= 500;
 }
 
-/**
- * Issues a read-only GET-style request against each configured backend in
- * round-robin order, advancing the shared rotation cursor once per call
- * (not once per retry), and falling over to the next backend when one
- * fails with a retryable error (see isRetryableStatus). Returns the first
- * response, retryable or not - callers still handle non-ok responses via
- * parseError as before, since a non-retryable 4xx from the last-tried
- * backend is the real answer to return.
- */
 async function fetchWithFailover(
   path: string,
   init: RequestInit = {},
@@ -291,43 +181,22 @@ async function fetchWithFailover(
         return res;
       }
       sawRetryableFailure = true;
-      // Retryable (5xx) and another backend remains - try the next one.
     } catch (err) {
       lastError = err;
       sawRetryableFailure = true;
       if (isLastAttempt) throw err;
-      // Network error/timeout and another backend remains - try the next one.
     }
   }
 
-  // A node we thought was online just failed - the cached node list is
-  // likely stale (node went offline since the last /nodes poll). Refresh
-  // it in the background so the *next* request gets an up-to-date set.
   if (sawRetryableFailure) invalidateNodesCache();
 
-  // Unreachable in practice (bases always has at least one entry when
-  // discovery/static config succeeded, and the loop above always returns
-  // or throws on the last attempt), but keeps the function's return type
-  // honest for the type checker.
   throw lastError instanceof Error
     ? lastError
     : new TempCdnError("All backend servers are unreachable", 0);
 }
 
-/**
- * Upload timeout is intentionally much longer than the read-only timeout
- * above (5 min vs 10s): large files on slow connections are a legitimate,
- * lengthy use case, not a hang. This still guards against a truly stuck
- * request (e.g. server accepted the connection but never responds).
- */
 const UPLOAD_TIMEOUT_MS = 5 * 60 * 1000;
 
-/**
- * Runs a single upload attempt against one backend base using
- * XMLHttpRequest (needed for upload progress events, which fetch doesn't
- * expose). Resolves/rejects like the old single-attempt uploadFile did;
- * retry-across-bases is handled by the caller (uploadFile below).
- */
 function uploadAttempt(
   base: string,
   file: File,
@@ -370,17 +239,6 @@ function uploadAttempt(
   return { promise, xhr };
 }
 
-/**
- * Uploads a file, round-robin across configured backends with failover to
- * the next backend on a retryable error (see isRetryableStatus).
- *
- * A retry after progress has already started means restarting the upload
- * from 0% against the next backend - there's no way to resume a partial
- * multipart POST on a different server. This is still preferable to
- * surfacing a hard failure the moment one instance has a bad moment, but
- * it does mean onProgress can visibly jump backward to 0 on a retry; this
- * is expected, not a bug.
- */
 export function uploadFile(
   file: File,
   onProgress: (percent: number) => void
@@ -407,15 +265,10 @@ export function uploadFile(
         if (aborted || !isRetryableStatus(status) || isLastAttempt) {
           throw err;
         }
-        // Retryable (network error/timeout/5xx) and another backend
-        // remains - reset progress and try the next one.
         onProgress(0);
       }
     }
 
-    // Unreachable (bases always has at least one entry, and the loop above
-    // always returns or throws on the last attempt), but keeps the
-    // function's return type honest for the type checker.
     throw lastError instanceof Error
       ? lastError
       : new TempCdnError("All backend servers are unreachable", 0);
@@ -430,10 +283,6 @@ export function uploadFile(
   };
 }
 
-/**
- * Fetches server-driven upload constraints (max size, allowed mime types,
- * blocked extensions, retention TTL) from GET /api/v1/config.
- */
 export async function getConfig(): Promise<TempCdnConfig> {
   const res = await fetchWithFailover("/config", { cache: "no-store" });
   if (!res.ok) return parseError(res);
@@ -450,18 +299,6 @@ export async function getFileInfo(id: string): Promise<UploadedFile> {
   return res.json();
 }
 
-/**
- * Deletes a file before its TTL expires.
- *
- * Requires the `delete_token` issued in the original /upload response —
- * the API only accepts it via the `X-Delete-Token` header now, since a
- * bare file id is guessable/shareable and previously let anyone who knew
- * (or could enumerate) an id delete it. Callers without a token for this
- * id (shared links, older entries saved before this field existed, or
- * files uploaded before this rollout) should not call this at all; the
- * server rejects those with 403 and there's no way to recover a missing
- * token after the fact.
- */
 export async function deleteFile(
   id: string,
   deleteToken: string
@@ -513,13 +350,6 @@ export interface TempCdnStats {
   generatedAt: string;
 }
 
-/**
- * Fetches JSON stats from GET /api/v1/stats.
- *
- * Replaces the old Prometheus text-format /metrics endpoint (removed).
- * Numeric fields default to 0 and contentTypeBreakdown defaults to {}
- * when absent, so a partial/older server shape doesn't throw.
- */
 export async function getTempCdnStats(): Promise<TempCdnStats> {
   const res = await fetchWithFailover("/stats", { cache: "no-store" });
   if (!res.ok) return parseError(res);
@@ -537,35 +367,12 @@ export async function getTempCdnStats(): Promise<TempCdnStats> {
   };
 }
 
-/**
- * Fetches the live cluster node list from GET /api/v1/nodes, for display
- * purposes (e.g. an admin/status page showing which nodes are online).
- * This goes through the normal failover machinery like any other read, so
- * it also benefits from - and reports on - whichever node currently
- * answers first.
- *
- * Not to be confused with the internal discovery machinery above (see
- * discoverNodes/getOnlineBases), which calls the bootstrap seed node
- * directly rather than going through fetchWithFailover, since it's what
- * *builds* the list fetchWithFailover uses.
- */
 export async function getNodes(): Promise<NodesResponse> {
   const res = await fetchWithFailover("/nodes", { cache: "no-store" });
   if (!res.ok) return parseError(res);
   return res.json();
 }
 
-/**
- * Logs in to the admin dashboard API via POST /api/v1/admin/login. Not
- * authenticated itself (that's the point), so no Authorization header is
- * sent. On success the caller is responsible for persisting the returned
- * token (see lib/admin-auth.ts) — this function only performs the request.
- *
- * A 401 here (wrong username/password) is a normal, expected outcome for
- * this endpoint, not a backend failure — callers should catch
- * TempCdnError and show it as a form validation message rather than a
- * generic "something went wrong" toast.
- */
 export async function adminLogin(username: string, password: string): Promise<AdminLoginResponse> {
   const res = await fetchWithFailover("/admin/login", {
     method: "POST",
@@ -579,15 +386,6 @@ export async function adminLogin(username: string, password: string): Promise<Ad
   return res.json();
 }
 
-/**
- * Revokes the given session token via POST /api/v1/admin/logout. Logout is
- * idempotent on the backend (revoking an already-invalid/expired/unknown
- * token still returns 200), so this never needs special-case error
- * handling for "already logged out" — callers should clear their local
- * session (see lib/admin-auth.ts clearAdminSession) regardless of whether
- * this call succeeds, since the goal is "stop being logged in here" and
- * the local half of that is unconditional.
- */
 export async function adminLogout(token: string): Promise<void> {
   const res = await fetchWithFailover("/admin/logout", {
     method: "POST",
@@ -596,16 +394,6 @@ export async function adminLogout(token: string): Promise<void> {
   if (!res.ok) return parseError(res);
 }
 
-/**
- * Verifies a stored session token is still valid and fetches the current
- * admin's identity via GET /api/v1/admin/me. Used on dashboard load to
- * confirm a token pulled from localStorage hasn't expired or been revoked
- * server-side (e.g. logged out from another device) before trusting it.
- *
- * A 401 here means the token is missing/invalid/expired — callers should
- * treat this the same as "not logged in" (clear the local session and
- * redirect to login), not as a transient error to retry.
- */
 export async function adminMe(token: string): Promise<AdminMeResponse> {
   const res = await fetchWithFailover("/admin/me", {
     headers: { Authorization: `Bearer ${token}` },
@@ -615,12 +403,6 @@ export async function adminMe(token: string): Promise<AdminMeResponse> {
   return res.json();
 }
 
-/**
- * Creates a new API key via POST /api/v1/admin/api-keys. The plaintext
- * `key` field in the response is only ever returned here - it can't be
- * retrieved again afterward, so callers must show/copy it immediately and
- * are responsible for not silently discarding it.
- */
 export async function createApiKey(token: string, name: string): Promise<CreateApiKeyResponse> {
   const res = await fetchWithFailover("/admin/api-keys", {
     method: "POST",
@@ -631,10 +413,6 @@ export async function createApiKey(token: string, name: string): Promise<CreateA
   return res.json();
 }
 
-/**
- * Lists every API key (active and revoked) via GET /api/v1/admin/api-keys,
- * most recently created first. Never includes the plaintext key.
- */
 export async function listApiKeys(token: string): Promise<ApiKey[]> {
   const res = await fetchWithFailover("/admin/api-keys", {
     headers: { Authorization: `Bearer ${token}` },
@@ -644,12 +422,6 @@ export async function listApiKeys(token: string): Promise<ApiKey[]> {
   return res.json();
 }
 
-/**
- * Revokes a single API key via DELETE /api/v1/admin/api-keys/{id}.
- * Idempotent on the backend - revoking an already-revoked or unknown id
- * still returns 200 - so callers don't need special-case handling for
- * "already revoked".
- */
 export async function revokeApiKey(token: string, id: string): Promise<void> {
   const res = await fetchWithFailover(`/admin/api-keys/${id}`, {
     method: "DELETE",
@@ -658,14 +430,6 @@ export async function revokeApiKey(token: string, id: string): Promise<void> {
   if (!res.ok) return parseError(res);
 }
 
-/**
- * Fetches the current runtime-configurable upload limits (max size,
- * allowed MIME types, blocked extensions) via
- * GET /api/v1/admin/upload-settings, for the settings page's edit form.
- * Unlike getConfig() (the public, read-only mirror of the same values),
- * this requires an admin session and includes the updated_at/updated_by
- * audit fields.
- */
 export async function getUploadSettings(token: string): Promise<UploadSettings> {
   const res = await fetchWithFailover("/admin/upload-settings", {
     headers: { Authorization: `Bearer ${token}` },
@@ -675,20 +439,6 @@ export async function getUploadSettings(token: string): Promise<UploadSettings> 
   return res.json();
 }
 
-/**
- * Persists new upload limits via PUT /api/v1/admin/upload-settings, taking
- * effect immediately on the backend instance that handles this request
- * (see backend README "Upload Settings" for the multi-instance caveat).
- * All three fields are required on every call — this isn't a partial/PATCH
- * update, so callers should submit the full current settings (e.g.
- * pre-filled from a prior getUploadSettings call) with only the fields
- * the admin actually changed.
- *
- * A 400 here means the backend rejected the values (e.g. a non-positive
- * max size, an empty MIME allowlist, or a blocked extension missing its
- * leading "."); the thrown TempCdnError's message is server-authored and
- * safe to show directly as a form validation error.
- */
 export async function updateUploadSettings(
   token: string,
   input: UpdateUploadSettingsRequest

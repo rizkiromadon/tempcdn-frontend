@@ -11,14 +11,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true }
 };
 
-// This renders for any URL that matches no route at all (see Next.js App
-// Router docs: a root-level not-found.tsx is required for that - one
-// scoped inside a route group only catches notFound() calls within that
-// group, not arbitrary unmatched URLs). Because it sits outside every
-// route group layout, it doesn't automatically get SiteHeader/SiteFooter
-// or AdminHeader/AdminFooter, so it includes the public header/footer
-// directly - a 404 for an unrecognized URL is treated as a public-site
-// page, not an admin one.
 export default function NotFound() {
   return (
     <>

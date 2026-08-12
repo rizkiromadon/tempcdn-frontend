@@ -14,9 +14,7 @@ function makeClientId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-/** Max number of uploads allowed to run concurrently; the rest stay "queued". */
 const MAX_CONCURRENT_UPLOADS = 4;
-/** Soft guard against accidentally dropping an entire folder at once. */
 const MAX_FILES_PER_DROP = 50;
 
 interface UploadPanelProps {
@@ -27,15 +25,8 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
   const [tasks, setTasks] = useState<UploadTask[]>([]);
   const { config, loading: configLoading } = useTempCdnConfig();
 
-  // Holds the in-flight `abort` function for every queued/uploading task,
-  // keyed by clientId. Kept outside React state (a ref) since it's an
-  // imperative escape hatch, not something that should trigger re-renders.
   const abortersRef = useRef<Map<string, () => void>>(new Map());
 
-  // Ordered queue of clientIds waiting for a free upload slot, plus a live
-  // count of uploads currently in flight. Both are refs (not state) because
-  // they're bookkeeping for the dispatcher below, not something the UI
-  // renders directly — task.status already reflects "queued" vs "uploading".
   const pendingQueueRef = useRef<string[]>([]);
   const activeCountRef = useRef(0);
   const filesByClientIdRef = useRef<Map<string, File>>(new Map());
@@ -79,15 +70,8 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
     [updateTask, onUploaded]
   );
 
-  // `startNext` and `runUpload` are mutually recursive (starting the next
-  // queued item runs an upload, which on completion starts the next item).
-  // A ref holds the latest `startNext` so `runUpload` can call it without
-  // both callbacks needing each other in their dependency arrays.
   const startNextRef = useRef<() => void>(() => {});
 
-  // Pulls the next queued task (if any) and starts it, as long as we're
-  // under the concurrency limit. Called whenever a slot frees up (an
-  // upload settles) or a new batch of files is dropped.
   const startNext = useCallback(() => {
     while (
       activeCountRef.current < MAX_CONCURRENT_UPLOADS &&
@@ -96,14 +80,13 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
       const nextId = pendingQueueRef.current.shift();
       if (!nextId) break;
       const file = filesByClientIdRef.current.get(nextId);
-      if (!file) continue; // task was removed while still queued
+      if (!file) continue;
       runUpload(nextId, file);
     }
   }, [runUpload]);
 
   startNextRef.current = startNext;
 
-  /** Adds a validated task to the queue and immediately tries to dispatch it. */
   const enqueue = useCallback(
     (clientId: string, file: File) => {
       filesByClientIdRef.current.set(clientId, file);
@@ -146,18 +129,11 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
   );
 
   function removeTask(clientId: string) {
-    // If this task still has an in-flight XHR (queued/uploading), abort it
-    // first so the network request actually stops instead of continuing
-    // silently in the background after it disappears from the UI.
     const abort = abortersRef.current.get(clientId);
     if (abort) {
       abort();
       abortersRef.current.delete(clientId);
     }
-    // If it hasn't started yet (still waiting for a free slot), drop it
-    // from the pending queue too so a stale entry doesn't try to dispatch
-    // later — startNext() already guards against this, but this keeps the
-    // queue accurate rather than relying on that guard alone.
     pendingQueueRef.current = pendingQueueRef.current.filter((id) => id !== clientId);
     filesByClientIdRef.current.delete(clientId);
     setTasks((prev) => prev.filter((t) => t.clientId !== clientId));
@@ -184,13 +160,6 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
     return { done, failed, active, total: tasks.length };
   }, [tasks]);
 
-  // Screen-reader-only announcement of the overall upload state. Derived
-  // the same way as `summary` (from status counts, not per-tick progress),
-  // so it only changes on queued→uploading→done/error transitions — never
-  // on the once-a-frame percentage updates, which would be far too noisy
-  // for a screen reader. Kept separate from the visible summary card since
-  // that card only renders for 2+ files, but a screen reader user uploading
-  // a single file still needs to hear when it starts and finishes.
   const statusAnnouncement = useMemo(() => {
     if (!summary) return "";
     if (summary.active > 0) {
@@ -212,7 +181,7 @@ export function UploadPanel({ onUploaded }: UploadPanelProps) {
         acceptedMimeTypes={configLoading ? undefined : config.allowed_mime_types}
       />
 
-      {/* Screen-reader-only status announcements — see statusAnnouncement above. */}
+      {}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {statusAnnouncement}
       </div>

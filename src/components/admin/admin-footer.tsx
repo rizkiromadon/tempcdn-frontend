@@ -1,10 +1,5 @@
 import Link from "next/link";
 
-/**
- * Minimal footer for /dashboard pages - deliberately not the full
- * marketing SiteFooter (product/developer/project link columns), since
- * none of that is relevant once an admin is inside the dashboard.
- */
 export function AdminFooter() {
   return (
     <footer className="border-t border-line bg-paper">

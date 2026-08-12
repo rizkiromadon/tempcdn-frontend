@@ -41,7 +41,6 @@ export default function UploadPage() {
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-14 sm:pt-20">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
       />
       <nav aria-label="Breadcrumb" className="mb-6">

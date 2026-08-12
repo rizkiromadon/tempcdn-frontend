@@ -153,7 +153,6 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
         />
       </head>
@@ -167,7 +166,7 @@ export default function RootLayout({
         {children}
         <Toaster />
 
-        {/* Google tag (gtag.js) */}
+        {}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-7SGGZT7VF9"
           strategy="afterInteractive"
@@ -184,5 +183,4 @@ export default function RootLayout({
     </html>
   );
 }
-
 

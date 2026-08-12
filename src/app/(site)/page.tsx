@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div>
-      {/* Hero */}
+      {}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-5xl px-5 pb-16 pt-14 sm:pb-20 sm:pt-20">
           <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-sage/30 bg-sage-soft px-3 py-1 text-xs font-medium text-sage">
@@ -89,7 +89,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Advantages */}
+      {}
       <section className="mb-16 sm:mb-20">
         <div className="mx-auto max-w-5xl px-5">
           <h2 className="mb-1 font-display text-xl font-bold text-ink sm:text-2xl">
@@ -103,7 +103,7 @@ export default function HomePage() {
         <AdvantageBelt />
       </section>
 
-      {/* About / how it works — expands on-page text content and keyword coverage */}
+      {}
       <section className="mx-auto max-w-5xl border-t border-line px-5 py-14 sm:py-16">
         <h2 className="mb-4 font-display text-xl font-bold text-ink sm:text-2xl">
           How TempCDN&apos;s free file upload service works
@@ -149,7 +149,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats */}
+      {}
       <section className="mx-auto max-w-5xl border-t border-line px-5 py-10">
         <div className="mb-5 flex items-center gap-2">
           <span className="relative flex h-2 w-2">
@@ -167,7 +167,7 @@ export default function HomePage() {
         <LiveStats />
       </section>
 
-      {/* FAQ */}
+      {}
       <FaqSection />
     </div>
   );

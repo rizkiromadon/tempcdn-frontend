@@ -11,12 +11,6 @@ const DESCRIPTION =
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-// Representative example base used in the static, server-rendered curl
-// examples on this page. This intentionally does NOT reflect live node
-// discovery — that's what DocsBaseUrlBox (a small client island) is for.
-// Keeping these examples static and server-rendered is what lets this
-// route be statically generated (see SEO audit P1) instead of forced
-// dynamic by a per-request /nodes fetch.
 const EXAMPLE_BASE = "https://srv1.tempcdn.example.com/api/v1";
 
 export const metadata: Metadata = {
@@ -142,7 +136,6 @@ export default function DocsPage() {
     <div className="mx-auto max-w-5xl px-5 pb-24 pt-14 sm:pt-20">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_JSON_LD) }}
       />
       <nav aria-label="Breadcrumb" className="mb-6">
@@ -175,7 +168,7 @@ export default function DocsPage() {
         <DocsBaseUrlBox />
       </section>
 
-      {/* On-page nav */}
+      {}
       <nav aria-label="Documentation sections" className="mb-14 flex flex-wrap gap-2">
         {nav.map((item) => (
           <Link

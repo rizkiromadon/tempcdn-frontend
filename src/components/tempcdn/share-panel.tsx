@@ -25,9 +25,6 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
     setTimeout(() => setCopied(false), 1600);
   }
 
-  // Generated fully client-side (no network call) so the file's URL never
-  // leaves the browser — a third-party QR image service would otherwise see
-  // every URL a user shares, which contradicts "nothing left behind".
   useEffect(() => {
     if (!showQr || disabled) return;
     let cancelled = false;
@@ -81,7 +78,6 @@ export function SharePanel({ url, disabled }: SharePanelProps) {
       {showQr && !disabled && (
         <div className="flex animate-fade-up items-center gap-3 rounded-xl border border-line bg-paper-sunk p-3">
           {qrSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={qrSrc}
               alt="QR code linking to the file"

@@ -46,9 +46,6 @@ export function FilePreview({ src, contentType, alt, className, iconOnly }: File
       )}
     >
       {showImage ? (
-        // `fill` + a small `sizes` hint lets Next.js request/generate a
-        // resized image instead of shipping the full original file for a
-        // ~36–44px thumbnail — large images no longer download at full size.
         <Image
           src={src}
           alt={alt}

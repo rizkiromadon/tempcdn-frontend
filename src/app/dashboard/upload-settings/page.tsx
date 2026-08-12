@@ -16,13 +16,6 @@ type LoadState =
   | { status: "error"; message: string }
   | { status: "ready"; settings: UploadSettings };
 
-/**
- * A labeled list of short string values (MIME patterns or extensions) that
- * can be added via the text input + Enter/button, or removed by clicking
- * the × on a chip. Deliberately bespoke rather than a new dependency,
- * matching the project's existing "no dialog primitive, build small
- * one-off UI" approach (see api-keys/page.tsx's Overlay).
- */
 function TagListEditor({
   label,
   helpText,
@@ -54,9 +47,6 @@ function TagListEditor({
       e.preventDefault();
       commitDraft();
     } else if (e.key === "Backspace" && draft === "" && values.length > 0) {
-      // Backspacing on an empty input removes the last chip, mirroring the
-      // common "chip input" convention (Gmail recipients, etc.) so removal
-      // doesn't always require reaching for the mouse.
       onChange(values.slice(0, -1));
     }
   }
@@ -114,11 +104,6 @@ function TagListEditor({
 function UploadSettingsContent({ session }: { session: AdminSession }) {
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
-  // Form fields, only meaningful once state.status === "ready". Kept
-  // separate from `state.settings` so edits don't require re-deriving the
-  // loaded state on every keystroke, and so "has this changed from what's
-  // saved" (isDirty below) is a simple comparison against the last-loaded
-  // snapshot.
   const [maxSizeMB, setMaxSizeMB] = useState("");
   const [allowedMimeTypes, setAllowedMimeTypes] = useState<string[]>([]);
   const [blockedExtensions, setBlockedExtensions] = useState<string[]>([]);

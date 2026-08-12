@@ -13,24 +13,15 @@ const NAV_ITEMS = [
   { href: "/dashboard/upload-settings", label: "Upload Settings", icon: SlidersHorizontal }
 ] as const;
 
-/**
- * Collapsible sidebar for /dashboard pages. Holds the brand mark (moved
- * here from AdminHeader, which is now just a thin top bar) and the admin
- * nav. Open/closed state lives in AdminSidebarProvider so AdminHeader's
- * toggle button and this component stay in sync, and persists to
- * localStorage so it survives navigation between dashboard pages.
- */
 export function AdminSidebar() {
   const pathname = usePathname();
   const { isOpen, close } = useAdminSidebar();
 
-  // The login page isn't behind AdminGuard and has no session yet, so
-  // showing admin nav there would be misleading - skip rendering entirely.
   if (pathname === "/dashboard/login") return null;
 
   return (
     <>
-      {/* Backdrop on small screens when the sidebar is open */}
+      {}
       {isOpen && (
         <button
           type="button"

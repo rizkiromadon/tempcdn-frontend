@@ -90,14 +90,6 @@ function AdvantageCard({ advantage }: { advantage: Advantage }) {
   );
 }
 
-/**
- * Continuously scrolling "conveyor belt" of advantage cards, literalizing
- * the "files pass through" idea from the hero. The track is the list
- * rendered twice back to back and animated -50%, which loops seamlessly
- * since the second copy picks up exactly where the first ends. Pausable on
- * hover/focus for readability, and disabled entirely under
- * prefers-reduced-motion (see globals.css).
- */
 export function AdvantageBelt() {
   return (
     <div className="group/belt relative -mx-5 overflow-hidden sm:mx-0 sm:rounded-2xl">

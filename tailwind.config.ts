@@ -22,9 +22,6 @@ const config: Config = {
         ink: {
           DEFAULT: "#1F2430",
           soft: "#666C7D",
-          // Was #9AA0B2 (2.3–2.6:1 against paper/mist/paper-sunk — fails
-          // WCAG AA for text). Deepened while staying in the same cool-gray
-          // family; now 5.6–6.3:1 against every background it's used on.
           faint: "#5B6072"
         },
         bloom: {
@@ -33,21 +30,14 @@ const config: Config = {
           strong: "#4F46E5"
         },
         sage: {
-          // Was #2FBE86 (2.2–2.4:1 against paper/sage-soft — fails WCAG AA
-          // for text; this color is used as badge/status text, not just a
-          // decorative dot). Deepened while staying green; now 4.8–5.3:1.
           DEFAULT: "#187A54",
           soft: "#E7F9F1"
         },
         amber: {
-          // Was #F3A455 (1.8–2.3:1 — fails WCAG AA for text). Deepened
-          // while staying a warm orange (not brown); now 5.5–6.2:1.
           DEFAULT: "#8F5313",
           soft: "#FDF1E3"
         },
         coral: {
-          // Was #F1685E (1.8–2.7:1 — fails WCAG AA for text). Deepened
-          // while staying coral-red; now 5.1–5.9:1.
           DEFAULT: "#B03D33",
           soft: "#FDEBEA"
         }
