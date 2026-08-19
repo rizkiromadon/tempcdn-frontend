@@ -14,18 +14,18 @@
   body {
     @apply bg-mist text-ink antialiased;
     background-image:
-      radial-gradient(ellipse 60% 40% at 15% 0%, rgba(46, 155, 255, 0.14), transparent),
-      radial-gradient(ellipse 50% 35% at 90% 8%, rgba(47, 190, 134, 0.07), transparent);
+      radial-gradient(ellipse 60% 40% at 15% 0%, rgba(255, 255, 255, 0.04), transparent),
+      radial-gradient(ellipse 50% 35% at 90% 8%, rgba(255, 255, 255, 0.02), transparent);
     background-attachment: fixed;
   }
 
   ::selection {
-    background: rgba(46, 155, 255, 0.28);
-    color: #eaf0fb;
+    background: rgba(255, 255, 255, 0.18);
+    color: #f5f5f5;
   }
 
   :focus-visible {
-    outline: 2px solid #2e9bff;
+    outline: 2px solid #f5f5f5;
     outline-offset: 2px;
     border-radius: inherit;
     transition: outline-offset 0.15s ease-out;
@@ -39,13 +39,13 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1c2a42;
+    background: #262626;
     border: 2px solid transparent;
     background-clip: padding-box;
     border-radius: 8px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #2e3f5c;
+    background: #3a3a3a;
     background-clip: padding-box;
   }
 }

@@ -9,11 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-bloom text-white shadow-soft hover:bg-bloom-strong hover:shadow-lifted",
+          "bg-bloom text-black shadow-soft hover:bg-bloom-strong hover:shadow-lifted",
         secondary:
-          "bg-paper text-ink border border-line hover:border-bloom/40 hover:bg-bloom-soft/60",
+          "bg-paper text-ink border border-line hover:border-ink-faint hover:bg-line-soft",
         ghost: "text-ink-soft hover:text-ink hover:bg-paper-sunk",
-        danger: "bg-coral-soft text-coral hover:bg-coral hover:text-white",
+        danger: "bg-coral-soft text-coral hover:bg-coral hover:text-black",
         outline: "border border-line text-ink bg-transparent hover:border-ink-faint"
       },
       size: {

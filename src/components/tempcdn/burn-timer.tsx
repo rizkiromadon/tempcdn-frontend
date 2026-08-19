@@ -24,9 +24,9 @@ function useBurnState(expiresAt: string, createdAt: string) {
   const isCritical = !isExpired && fraction < 0.15;
   const isWarning = !isExpired && fraction < 0.4;
 
-  const tone = isExpired || isCritical ? "text-coral" : isWarning ? "text-amber" : "text-bloom-strong";
-  const strokeColor = isExpired || isCritical ? "#F1685E" : isWarning ? "#F3A455" : "#6366F1";
-  const barTone = isExpired || isCritical ? "bg-coral" : isWarning ? "bg-amber" : "bg-bloom";
+  const tone = isExpired || isCritical ? "text-ink" : isWarning ? "text-ink-soft" : "text-ink-soft";
+  const strokeColor = isExpired || isCritical ? "#F5F5F5" : isWarning ? "#B3B3B3" : "#8A8A8A";
+  const barTone = isExpired || isCritical ? "bg-ink" : isWarning ? "bg-ink-soft" : "bg-ink-faint";
 
   return { remaining, fraction, isExpired, isCritical, isWarning, tone, strokeColor, barTone };
 }
@@ -53,7 +53,7 @@ export function BurnTimer({ expiresAt, createdAt, className, variant = "bar" }: 
               cy={size / 2}
               r={radius}
               fill="none"
-              stroke="#EEF0F8"
+              stroke="#262626"
               strokeWidth={stroke}
             />
             <circle

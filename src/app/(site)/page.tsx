@@ -77,11 +77,11 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 max-w-lg overflow-hidden rounded-xl border border-line bg-[#050A14] shadow-soft">
+          <div className="mt-10 max-w-lg overflow-hidden rounded-xl border border-line bg-paper-sunk shadow-soft">
             <div className="flex items-center gap-1.5 border-b border-white/10 px-3.5 py-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-coral/70" />
-              <span className="h-2.5 w-2.5 rounded-full bg-amber/70" />
-              <span className="h-2.5 w-2.5 rounded-full bg-sage/70" />
+              <span className="h-2.5 w-2.5 rounded-full bg-ink-faint" />
+              <span className="h-2.5 w-2.5 rounded-full bg-ink-faint/70" />
+              <span className="h-2.5 w-2.5 rounded-full bg-ink-faint/40" />
               <span className="ml-2 font-mono text-[10px] uppercase tracking-wide text-white/40">
                 one request, no api key
               </span>

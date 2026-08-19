@@ -53,7 +53,7 @@ export function UploadDock({ onFiles, disabled, maxSizeLabel, acceptedMimeTypes 
           className={cn(
             "flex h-16 w-16 items-center justify-center rounded-full bg-bloom-soft text-bloom-strong transition-all duration-200",
             "group-hover:scale-105",
-            isDragActive && "scale-110 bg-bloom text-white animate-breathe"
+            isDragActive && "scale-110 bg-bloom text-black animate-breathe"
           )}
         >
           {isDragActive ? (

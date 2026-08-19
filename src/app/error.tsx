@@ -14,7 +14,7 @@ export default function GlobalError({
         <p className="text-sm text-ink-soft">Please try again.</p>
         <button
           onClick={reset}
-          className="rounded-md bg-bloom px-4 py-2 text-sm text-white"
+          className="rounded-md bg-bloom px-4 py-2 text-sm text-black"
         >
           Try again
         </button>

@@ -98,7 +98,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B1526"
+  themeColor: "#000000"
 };
 
 const JSON_LD = {
@@ -152,7 +152,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col font-sans">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-bloom focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/40"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-bloom focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-bloom/40"
         >
           Skip to main content
         </a>

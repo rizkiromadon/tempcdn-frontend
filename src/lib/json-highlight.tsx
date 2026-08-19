@@ -36,11 +36,11 @@ export function highlightJson(source: string): ReactNode[] {
 
 function classForToken(token: string): string {
   const isKey = token.startsWith('"') && /:\s*$/.test(token);
-  if (isKey) return "text-sky-300";
-  if (token.startsWith('"')) return "text-amber-200";
-  if (token === "true" || token === "false") return "text-rose-300";
-  if (token === "null") return "text-white/40";
-  return "text-emerald-300";
+  if (isKey) return "text-ink font-medium";
+  if (token.startsWith('"')) return "text-ink-soft";
+  if (token === "true" || token === "false") return "text-ink";
+  if (token === "null") return "text-ink-faint";
+  return "text-ink-soft";
 }
 
 export function looksLikeJson(source: string): boolean {

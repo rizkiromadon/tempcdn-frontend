@@ -51,9 +51,9 @@ const BREADCRUMB_JSON_LD = {
 type HttpMethod = "GET" | "POST" | "DELETE";
 
 const methodStyle: Record<HttpMethod, string> = {
-  GET: "border-sage/30 text-sage bg-sage-soft",
-  POST: "border-bloom/30 text-bloom-strong bg-bloom-soft",
-  DELETE: "border-coral/30 text-coral bg-coral-soft"
+  GET: "border-line text-ink-soft bg-paper-sunk",
+  POST: "border-ink-faint text-ink bg-line-soft",
+  DELETE: "border-ink text-ink bg-ink/10"
 };
 
 function MethodTag({ method }: { method: HttpMethod }) {
@@ -69,7 +69,7 @@ function MethodTag({ method }: { method: HttpMethod }) {
 function CodeBlock({ children, label }: { children: string; label?: string }) {
   const isJson = looksLikeJson(children);
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-[#050A14] shadow-soft">
+    <div className="overflow-hidden rounded-xl border border-line bg-paper-sunk shadow-soft">
       {label && (
         <div className="border-b border-white/10 px-3.5 py-2 font-mono text-[10px] uppercase tracking-wide text-white/40">
           {label}
